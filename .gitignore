@@ -50,3 +50,5 @@ Temporary Items
 node_modules
 public
 vendor
+build
+src/scss/css/**
