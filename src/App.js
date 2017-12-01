@@ -1,15 +1,57 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './scss/css/App.css';
-import Autocomplete from 'react-google-autocomplete';
+import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete'
+//import Autocomplete from 'react-places-autocomplete';
 
 class App extends Component {
-  
-  state = {loaded: false}
 
-  onPlaceSelected() {
-    console.log("selected")
+  constructor(props) {
+    super(props)
+    this.state = { from: 'Aröds Industriväg',
+    to: "",
+    loaded: false,
+    destinations: [],
+    origins: [],
+    response: null
   }
+    this.onChangeFrom = (from) => this.setState({ from })
+    this.onChangeTo = (to) => this.setState({ to })
+  }
+  
+  
+  getDistance = (origins, destinations, google) => {
+  const service = new google.maps.DistanceMatrixService();
+    service.getDistanceMatrix({
+        origins: origins,
+        destinations: destinations,
+        travelMode: google.maps.TravelMode.DRIVING,
+        unitSystem: google.maps.UnitSystem.METRIC,
+        avoidHighways: false,
+        avoidTolls: false,
+        drivingOptions: {
+          departureTime: new Date(Date.now()),  
+          trafficModel: google.maps.TrafficModel.PESSIMISTIC
+        }
+        
+    }, (response, status) => {
+      console.log(response)
+      console.log(status)
+        console.log(response.rows[0].elements[0].distance)
+        console.log(response.rows[0].elements[0].duration)
+        console.log(response.rows[0].elements[0].duration_in_traffic)
+        
+        this.setState({response: response.rows[0].elements[0]})
+    });
+
+    
+  }
+
+
+
+  
+
+
 
   componentDidMount() {
     const script = document.createElement("script");
@@ -25,20 +67,47 @@ class App extends Component {
   }
   
   
-  
+  handleChange = (event) => {
+    const datetime = new Date(Date.parse(event.target.value))
+    this.setState({value: datetime});
+  }
   
   render() {
-
+/*
     let auto = null;
     if (this.state.loaded) {
       auto = <Autocomplete
         style={{width: '90%'}}
         onPlaceSelected={(place) => {
-        console.log(place);}}
+        console.log(place.formatted_address);
+        this.setState({origins: [...this.state.origins, place.formatted_address]})
+        }}
       />;
     } else {
       auto = "Hello Not loaded yet";
     }
+    let auto2 = null;
+    if (this.state.loaded) {
+      auto2 = <Autocomplete
+        style={{width: '90%'}}
+        onPlaceSelected={(place) => {
+        console.log(place.formatted_address);
+        this.setState({destinations: [...this.state.destinations, place.formatted_address]})
+        }}
+      />;
+    } else {
+      auto2 = "Hello Not loaded yet";
+    }
+*/
+
+const inputPropsFrom = {
+  value: this.state.from,
+  onChange: this.onChangeFrom
+}
+const inputPropsTo = {
+  value: this.state.to,
+  onChange: this.onChangeTo
+}
 
 
     return (
@@ -50,9 +119,24 @@ class App extends Component {
         <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
-        {auto}
-    
+        {this.state.loaded ? <PlacesAutocomplete  inputProps={inputPropsFrom} /> : ""}
+        {this.state.loaded ? <PlacesAutocomplete  inputProps={inputPropsTo} /> : ""}
+        <p>Datum-Tid:<input type="datetime-local" value={this.state.datetime} onChange={this.handleChange} /></p>
+        <button onClick={() => {
+          console.log(this.state.from);
+          console.log(this.state.to);
+          this.getDistance([this.state.from], [this.state.to], window.google)
+          }}>Starta</button>
+          
+      <div><p>Svar:</p></div>
+
+        <p>{this.state.response !== null ? this.state.response.distance.text : ''}</p>
+        <p>{this.state.response !== null ? this.state.response.duration.text : ''}</p>
+        <p>In traffic: {this.state.response !== null ? this.state.response.duration_in_traffic.text : ''}</p>
       
+        <p>Kilometerpris: {this.state.response !== null ? this.state.response.distance.value/1000 * 10 : 0}</p>
+        <p>Timpris: {this.state.response !== null ? this.state.response.distance.value/1000 * 10 : 0}</p>
+        <p>Totalpris: {this.state.response !== null ? this.state.response.distance.value/1000 * 10 : 0}</p>
       </div>
     );
   }
