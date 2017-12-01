@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './scss/css/App.css';
-import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete'
+import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
+import config from './config/config.js';
+import firebase from './config/firebase.js';
+
 //import Autocomplete from 'react-places-autocomplete';
 
 class App extends Component {
@@ -54,16 +57,37 @@ class App extends Component {
 
 
   componentDidMount() {
+    console.log()
     const script = document.createElement("script");
-    script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyBn5jU3NE8VcLZPbOSV-BuG3a6Ainz6LQA&libraries=places";
+    script.src = "https://maps.googleapis.com/maps/api/js?key=" + config.mapsapiKey + "&libraries=places";
     script.async = true
     script.onload = () => {
       this.setState({loaded: true})
         
-      }
-      
-    
+      }    
     document.body.appendChild(script);
+
+    firebase.database().ref("prices/km")
+      .once('value', function(snapshot){
+        console.log(snapshot.val())}    
+    )
+    firebase.database().ref("prices/hours1")
+    .once('value', function(snapshot){
+      console.log(snapshot.val())}    
+  )
+  firebase.database().ref("prices/hours2")
+  .once('value', function(snapshot){
+    console.log(snapshot.val())}    
+)
+firebase.database().ref("prices/hours3")
+.once('value', function(snapshot){
+  console.log(snapshot.val())}    
+)
+firebase.database().ref("prices/hours4")
+.once('value', function(snapshot){
+  console.log(snapshot.val())}    
+)
+
   }
   
   

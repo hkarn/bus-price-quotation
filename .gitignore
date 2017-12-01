@@ -52,3 +52,5 @@ public
 vendor
 build
 src/scss/css/**
+src/config/config.js
+src/config/firebase.js
