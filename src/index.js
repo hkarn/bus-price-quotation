@@ -6,8 +6,8 @@ import store, { history } from './store'
 import App from './App'
 import registerServiceWorker from './registerServiceWorker'
 
-import './dependencies/normalize.css'
-import './scss/css/index.css'
+import 'normalize.css';
+import './index.css'
 
 const target = document.querySelector('#root')
 

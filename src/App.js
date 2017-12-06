@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './scss/css/App.css';
 import { Route, Link } from 'react-router-dom'
 import Home from './containers/home'
 import Settings from './containers/settings'
+//import * as actions from 
 
 
 import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
