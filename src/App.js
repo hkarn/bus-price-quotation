@@ -1,23 +1,46 @@
 import React, { Component } from 'react';
 import { Route, Link } from 'react-router-dom'
+import { bindActionCreators }from 'redux'
+import { connect } from 'react-redux'
+
+//
 import Home from './containers/home'
 import Settings from './containers/settings'
 //import * as actions from 
 
+import ReactDependentScript from 'react-dependent-script';
+import PlacesAutocomplete/*, { geocodeByAddress, getLatLng }*/ from 'react-places-autocomplete'
+import config from './config/config.js'
 
-import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
-import config from './config/config.js';
+
+import {readPrices} from './actions/'
+
 //import calculator from './components/calc.js';
 
 //import Autocomplete from 'react-places-autocomplete';
+
+
+function mapDispatchToProps(dispatch){
+  return{
+   actions: {
+     readPrices: bindActionCreators(readPrices, dispatch)
+    }
+  }
+}
+
+
+function mapStateToProps(state){
+  return {
+    
+  }
+}
 
 class App extends Component {
 
   constructor(props) {
     super(props)
-    this.state = { from: 'Aröds Industriväg',
+    this.state = { from: "",
     to: "",
-    loaded: false,
     destinations: [],
     origins: [],
     response: null,
@@ -62,16 +85,7 @@ class App extends Component {
 
 
   componentDidMount() {
-    console.log()
-    const script = document.createElement("script");
-    script.src = "https://maps.googleapis.com/maps/api/js?key=" + config.mapsapiKey + "&libraries=places";
-    script.async = true
-    script.onload = () => {
-      this.setState({loaded: true})
-        
-      }    
-    document.body.appendChild(script);
-
+    this.props.actions.readPrices()
   }
   
   
@@ -120,6 +134,43 @@ const inputPropsTo = {
   onChange: this.onChangeTo
 }
 
+const defaultStyles = {
+  root: {
+    position: 'relative',
+    paddingBottom: '0px',
+  },
+  input: {
+    display: 'inline-block',
+    width: '100%',
+    padding: '10px',
+  },
+  autocompleteContainer: {
+    position: 'absolute',
+    top: '100%',
+    backgroundColor: 'white',
+    border: '1px solid #555555',
+    width: '100%',
+    'z-index': '50000',
+  },
+  autocompleteItem: {
+    backgroundColor: '#ffffff',
+    padding: '10px',
+    color: '#555555',
+    cursor: 'pointer',
+  },
+  autocompleteItemActive: {
+    backgroundColor: '#fafafa'
+  },
+  googleLogoContainer: {
+    textAlign: 'right',
+    padding: '1px',
+    backgroundColor: '#fafafa'
+  },
+  googleLogoImage: {
+    width: 150
+  }
+}
+
     return (
       <div className="application">
       <header>
@@ -134,8 +185,15 @@ const inputPropsTo = {
         <h1>Prisräknare</h1>
         <div>
         <h2>Körningar</h2>
-        {this.state.loaded ? <PlacesAutocomplete  inputProps={inputPropsFrom} /> : ""}
-        {this.state.loaded ? <PlacesAutocomplete  inputProps={inputPropsTo} /> : ""}
+        <ReactDependentScript
+          loadingComponent={<div>Ansluter till Google Maps ...</div>}
+          scripts={['https://maps.googleapis.com/maps/api/js?key=' + config.mapsapiKey + '&libraries=places']}
+        >
+          <PlacesAutocomplete inputProps={inputPropsTo} styles={defaultStyles}/>
+          <PlacesAutocomplete inputProps={inputPropsFrom} styles={defaultStyles} />
+        </ReactDependentScript>
+
+
         <p>Datum-Tid Avresa denna körning:<input type="datetime-local" value={this.state.datetime} onChange={this.handleChange} /></p>
         <button>+ Lägg till körning</button>
         <br />
@@ -184,4 +242,4 @@ const inputPropsTo = {
   }
 }
 
-export default App;
+export default connect(mapStateToProps, mapDispatchToProps)(App);
