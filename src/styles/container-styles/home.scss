@@ -1,0 +1,26 @@
+@import '../_global.scss';
+
+.price-counter-page {
+
+  h1 {
+    text-align: center;
+  }
+
+  .left {
+    float: left;
+    width: 65%;
+    border-top: 1px black solid;
+    
+
+  }
+
+  .right {
+    float: right;
+    width: 35%;
+    min-height: calc(100vh - 28px);
+    border-left: 1px black solid;
+    border-top: 1px black solid;
+    padding-left: 8px;
+
+  }
+}

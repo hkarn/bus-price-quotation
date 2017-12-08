@@ -5,8 +5,30 @@ import { connect } from 'react-redux'
 
 const Settings = props => (
   <div>
-    <h1>Settings</h1>
+    <h1>About</h1>
     <p>Welcome home!</p>
+    <header>
+        <nav>
+          <ul>
+            <li>
+              hej
+            </li>
+            <li>
+              hå
+            </li>
+            <li>
+              hallo
+            </li>
+          </ul>
+        </nav>
+      </header>
+
+      <main>
+        main
+      </main>
+      <footer>
+      main footer
+      </footer>
     <button onClick={() => props.changePage()}>Go to about page via redux</button>
   </div>
 )

@@ -1,0 +1,52 @@
+@import '../_global.scss';
+
+.main-header {
+
+  ul {
+    list-style: none;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    background-color: $logo-red;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+
+
+     .main-header-logolink {
+       padding: 0;
+       margin: 0;
+     }
+    
+    li {
+      img {
+        height: 28px;
+        float:left;
+        width: auto;
+        margin-right: 15px;
+        padding: 1px;
+        border-radius: 5px;
+      }
+
+      a {
+        display: block;
+        padding: 5px 3vw;
+        background-color: $logo-red;
+        font-size: 1em;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: rgb(255,255,255);
+        text-decoration: none;
+        
+        &:hover {
+          background-color: rgba(255,255,255,.2);
+          
+        }
+  
+      }
+    }
+  }
+}
+

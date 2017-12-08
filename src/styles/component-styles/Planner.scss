@@ -1,0 +1,38 @@
+@import '../_global.scss';
+
+.planner {
+
+  text-align: center;
+  margin: 3px;
+
+
+  .planner-datepicker {
+    
+    input {
+      text-align: center;
+      font-size: 1.2em;
+    }
+
+  }
+
+  .planner-controls,
+  .planner-break {
+    button {
+      display: block;
+      background-color: $go-color;
+      border: 1px black solid;
+      border-radius: 4px;
+      padding: 5px;
+      font-size: 1.15em;
+      margin: 10px auto;
+
+    }
+  }
+
+  .planner-break,
+  .planner-options {
+    border-top: 1px black solid; 
+    margin-top: 35px;
+  }
+  
+}

@@ -48,7 +48,7 @@ Temporary Items
 
 #Custom
 node_modules
-public
+dependencies
 vendor
 build
 src/**/*.css
