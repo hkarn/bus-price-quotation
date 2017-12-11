@@ -14,7 +14,7 @@ const addressFormStyles = {
     backgroundColor: 'white',
     border: '1px solid #555555',
     width: '100%',
-    'zIndex': '50000',
+    'zIndex': '90000',
   },
   autocompleteItem: {
     backgroundColor: '#ffffff',

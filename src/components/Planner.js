@@ -90,26 +90,26 @@ class Planner extends Component {
 
     return (
       <div className="planner"> 
-        <label>Starttid</label>
-        <DateTime value={this.state.start} onChange={this.handleChangeStart} className="planner-datepicker"/>
+        <h1>Planera uppdrag</h1>
+        <label htmlFor='start-time'>Starttid</label>
+        <DateTime value={this.state.start} onChange={this.handleChangeStart} className='planner-datepicker' id='start-time'/>
         <ReactDependentScript
           loadingComponent={<div>Ansluter till Google Maps <FontAwesome name='spinner' spin/></div>}
           scripts={['https://maps.googleapis.com/maps/api/js?key=' + config.mapsapiKey + '&libraries=places']}
         >
           <div className="planner-locations">
           
-            <label>Från adress</label>
-            <PlacesAutocomplete inputProps={inputPropsTo} styles={addressStyle}/>
-            <label>Till adress</label>
-            <PlacesAutocomplete inputProps={inputPropsFrom} styles={addressStyle} />
+            <label htmlFor='from-address'>Från adress</label>
+            <PlacesAutocomplete inputProps={inputPropsTo} styles={addressStyle} id='from-address'/>
+            <label htmlFor='to-address'>Till adress</label>
+            <PlacesAutocomplete inputProps={inputPropsFrom} styles={addressStyle} id='to-address'/>
           
-          <input type="checkbox" /><label>TOMMIL</label>
+          <input type="checkbox" id='empty-leg' /><label htmlFor='empty-leg'>Tomkörning</label>
           </div>
           <div className="planner-controls">
             <button onClick={() => this.getDistance([this.state.fromField], [this.state.toField], window.google)}> Lägg till resan <FontAwesome name='chevron-right' /> </button>
-            <button> Lägg till automatisk returresa <FontAwesome name='chevron-right' /> </button>
-            <label>Sluttid</label>
-          <DateTime value={this.state.end} onChange={this.handleChangeEnd} className="planner-datepicker"/>
+            <label htmlFor='end-time'>Manuell sluttid</label>
+          <DateTime value={this.state.end} onChange={this.handleChangeEnd} className='planner-datepicker' id='end-time' />
           </div>
         </ReactDependentScript>
         <div className="planner-leg-results">
@@ -117,16 +117,16 @@ class Planner extends Component {
         
         <div className="planner-break">
         <h3>Rast/Avbrott</h3>
-        <label>Avbrott starttid</label>
-        <DateTime value={this.state.breakstart} onChange={this.handleChangeBreakStart} className="planner-datepicker"/>
-        <label>Avbrott sluttid</label>
-        <DateTime value={this.state.breakend} onChange={this.handleChangeBreakStart} className="planner-datepicker"/>
+        <label htmlFor='break-start'>Avbrott starttid</label>
+        <DateTime value={this.state.breakstart} onChange={this.handleChangeBreakStart} className='planner-datepicker' id='break-start' />
+        <label htmlFor='break-end'>Avbrott sluttid</label>
+        <DateTime value={this.state.breakend} onChange={this.handleChangeBreakStart} className='planner-datepicker' id='break-end' />
           <button> Lägg till obetald tid i uppdraget <FontAwesome name='chevron-right' /> </button>
         </div>
         <div className="planner-options">
         <h3>Inställningar</h3>
-          <input type="checkbox" /><label>Under 30 personer</label><br />
-          <input type="checkbox" /><label>Två förare</label>
+          <input type="checkbox" id='less-then-30'/><label htmlFor='less-then-30'>Under 30 personer</label><br />
+          <input type="checkbox" id='two-drivers' /><label htmlFor='two-drivers'>Två förare</label>
         </div>
       </div>
     );

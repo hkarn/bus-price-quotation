@@ -9,12 +9,11 @@ import '../../styles/container-styles/home.css'
 const Home = props => (
   <div className="price-counter-page">
     <div className="left">
-      <h1>Planera uppdrag</h1>
       <Planner />
     </div>
     
     <div className="right">
-      <h1>Resultat</h1>
+      
       <ResultViewer />
     </div>
 

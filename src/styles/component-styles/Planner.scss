@@ -5,6 +5,12 @@
   text-align: center;
   margin: 3px;
 
+  label {
+    margin-top: 10px;
+    margin-bottom: 2px;
+    display: inline-block;
+  }
+
 
   .planner-datepicker {
     
@@ -24,7 +30,7 @@
       border-radius: 4px;
       padding: 5px;
       font-size: 1.15em;
-      margin: 10px auto;
+      margin: 14px auto;
 
     }
   }
@@ -33,6 +39,32 @@
   .planner-options {
     border-top: 1px black solid; 
     margin-top: 35px;
+  }
+
+  input[type='checkbox'] {
+    display: none;
+  }
+
+  input[type=checkbox] + label {
+    font-weight: normal;
+    font-size: 1.22em;
+  	right:0; left:0;
+  	padding-left: 5px;
+    cursor: pointer;
+    margin: 14px auto;
+  }
+  input[type=checkbox] + label:hover {
+    font-weight: bold;
+  }
+  input[type=checkbox] + label::before {
+  	font-family: FontAwesome;
+  	display: inline-block;
+  	content: "\f096";
+  	width: 1.5em;
+    color: black;
+  }
+  input[type=checkbox]:checked + label::before {
+  	content: "\f046";
   }
   
 }
