@@ -4,6 +4,13 @@
 
  .rdt {
   position: relative;
+  width: 250px;
+  margin: 0 auto;
+
+  input.form-control {
+    width: 250px;
+    margin: 0 auto;
+  }
 }
 .rdtPicker {
   display: none;
