@@ -13,8 +13,8 @@ class ShowPrelResults extends Component {
     return (
       <ul>
         <li>{this.props.km}</li>
-        <li>{this.props.no_traffic}</li>
-        <li>{this.props.traffic} med trafik</li>
+        <li>{this.props.traffic}</li>
+        <li>{this.props.break ? "inkl 45 min rast" : "Ingen rast"}</li>  
       </ul>
     );
 
