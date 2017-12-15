@@ -2,17 +2,19 @@ import React, { Component } from 'react';
 import { bindActionCreators }from 'redux'
 import { connect } from 'react-redux'
 
+import LegList from './LegList.js'
+
 
 
 class ResultViewer extends Component {
 
  
   render() {
-
     return (
       <div className='result-box'> 
         <h1>Resultat</h1>
         <div className='result-box-routes'>
+          <LegList trips={this.props.trips} />
         </div>
         <table className='result-box-table'>
           <thead>          
@@ -105,4 +107,8 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   
 }, dispatch)
 
-export default connect(null, mapDispatchToProps)(ResultViewer);
+const mapStateToProps = (state) => {return {
+  trips: state.trips,
+}}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ResultViewer);

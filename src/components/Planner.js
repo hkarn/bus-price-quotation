@@ -20,6 +20,8 @@ import addressStyle from "../styles/adressFormStyles";
 
 import ShowPrelResults from "./ShowPrelResults"
 
+import { durationToString } from '../functions'
+
 moment.locale("sv");
 
 class Planner extends Component {
@@ -41,9 +43,7 @@ class Planner extends Component {
     multidriver: false,
   }
 
-  componentDidMount() {
-  //console.log(store)
-}
+
 
 handleChangeBreakStart = event => {
   const valid = moment(event,"YYYY-MM-DD HH:mm", true).isValid() ? true : false
@@ -149,6 +149,10 @@ handleChangeBreakEnd = event => {
         console.log(response)
         console.log(status)
         if (status === "OK" && response.destinationAddresses[0] !== "" && response.originAddresses[0] !== "" && response.rows[0].elements[0].status !== "ZERO_RESULTS") {
+          //We use duration_in_traffic as default if normal time answer is longer we want to use that duration
+          if (response.rows[0].elements[0].duration_in_traffic.value < response.rows[0].elements[0].duration.value) {
+            response.rows[0].elements[0].duration_in_traffic = response.rows[0].elements[0].duration
+          }
           /*
             BASIC SANITY CHECK FOR BUS SPEEDS
             Checks if average speed is above 90km/h on this trip and recalculated the google time result if it is
@@ -191,7 +195,7 @@ handleChangeBreakEnd = event => {
           this.setState({'showResult':true})
         }
         //Dispatch Action on response
-        if (actionTrigger !== 'NONE')
+        if (actionTrigger !== 'NONE' && this.state.response === "OK")
           this.props.addLeg(actionTrigger, Object.assign({}, this.state))
 
       }
@@ -210,7 +214,6 @@ handleChangeBreakEnd = event => {
       onChange: this.onChangeTo,
       onBlur: this.onBlurTo,
     };
-
 
     
 
@@ -305,12 +308,12 @@ handleChangeBreakEnd = event => {
           <label htmlFor="break-end">Avbrott sluttid</label>
           <DateTime
             value={this.state.breakend}
-            onChange={this.handleChangeBreakStart}
+            onChange={this.handleChangeBreakEnd}
             className="planner-datepicker break-end"
           />
           <button
               onClick={() =>
-                this.props.addLeg('BREAK')
+                this.props.addLeg('BREAK', Object.assign({}, this.state))
               }
             >
             Lägg till obetald tid i uppdraget
@@ -337,17 +340,4 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 export default connect(null, mapDispatchToProps)(Planner);
 
 
-function durationToString(input) {
-  const dechours = input / 3600
-  const hours = Math.trunc(dechours)
-  const decminutes = dechours-hours
-  const minutes = Math.round(decminutes*60)
-  let result = ""
-  if (hours > 1) 
-    result = result + hours + " timmar "
-  if (hours === 1)
-    result = result + hours + " tim "
-  
-  result = result + minutes + " min"
-  return result
-}
+
