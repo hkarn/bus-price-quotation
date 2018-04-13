@@ -5,7 +5,9 @@ import { connect } from 'react-redux'
 import ReactDependentScript from 'react-dependent-script'
 import PlacesAutocomplete /*, { geocodeByAddress, getLatLng } */ from 'react-places-autocomplete'
 import DateTime from 'react-datetime'
-import FontAwesome from 'react-fontawesome'
+import FontAwesomeIcon from '@fortawesome/react-fontawesome'
+import faAngleRight from '@fortawesome/fontawesome-free-solid/faAngleRight'
+import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
 
 import config from '../config/config.js'
 
@@ -228,7 +230,7 @@ handleChangeBreakEnd = event => {
         <ReactDependentScript
           loadingComponent={
             <div>
-              Ansluter till Google Maps <FontAwesome name="spinner" spin />
+              Ansluter till Google Maps <FontAwesomeIcon icon={faSpinner} pulse />
             </div>
           }
           scripts={[
@@ -288,7 +290,7 @@ handleChangeBreakEnd = event => {
                 )
               }
             >
-              Lägg till resan <FontAwesome name="chevron-right" />
+              Lägg till resan <FontAwesomeIcon icon={faAngleRight} />
             </button>
           </div>
         </ReactDependentScript>
@@ -311,8 +313,7 @@ handleChangeBreakEnd = event => {
               props.addLeg('BREAK', Object.assign({}, state))
             }
           >
-            Lägg till obetald tid i uppdraget
-            <FontAwesome name="chevron-right" />
+            Lägg till obetald tid i uppdraget <FontAwesomeIcon icon={faAngleRight} />
           </button>
         </div>
         <div className="planner-options">

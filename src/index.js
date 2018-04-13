@@ -6,8 +6,8 @@ import store, { history } from './store'
 import App from './components/App'
 import registerServiceWorker from './registerServiceWorker'
 
-import 'normalize.css';
-import './index.css'
+import 'normalize.css'
+import './styles/index.css'
 
 const target = document.querySelector('#root')
 
@@ -21,4 +21,5 @@ render(
   </Provider>,
   target
 )
-registerServiceWorker();
+registerServiceWorker()
+
