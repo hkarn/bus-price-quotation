@@ -1,0 +1,44 @@
+{
+    "parser": "babel-eslint",
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es6": true
+    },
+    "extends": [ 
+        "standard",
+        "standard-react"
+    ],
+    "parserOptions": {
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread": true,
+            "jsx": true
+        },
+        "sourceType": "module"
+    },
+    "plugins": ["react"],
+    "rules": {
+        "quotes": ["error","single", {"avoidEscape": true, "allowTemplateLiterals": true}],
+        "no-extra-parens": ["error", "all", { "nestedBinaryExpressions": false, "ignoreJSX": "all" }],
+        "no-trailing-spaces": "error",
+        "no-useless-return": "error",
+        "no-warning-comments": [1, { "terms": ["todo", "fixme", "debug"], "location": "anywhere" }],
+        "no-console": [1],
+        "no-use-before-define": "error",
+        "prefer-const": "error",
+        "no-var": "error",
+        "no-tabs": "error",
+        "no-multiple-empty-lines": "error",
+        "jsx-quotes": ["error", "prefer-double"],
+        "react/boolean-prop-naming": [2, { "rule": "^(is|has|does)[A-Z]([A-Za-z0-9]?)+" }],
+        "react/destructuring-assignment": [2, "always"],
+        "react/forbid-component-props": [2],
+        "react/no-access-state-in-setstate": [2],
+        "react/no-did-mount-set-state": [2],
+        "react/no-did-update-set-state": [2],
+        "react/no-redundant-should-component-update": [2],
+        "react/no-unused-prop-types": [2],
+        "react/no-unused-state": [2],
+        "react/no-will-update-set-state": [2]
+    }
+}

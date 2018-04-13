@@ -1,5 +1,4 @@
 
-export function toggleSetting() {
+export function toggleSetting () {
   return null
 }
-

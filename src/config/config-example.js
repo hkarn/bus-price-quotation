@@ -1,5 +1,5 @@
 const config = {
-    mapsapiKey: "GOOGLE_MAPS_API_KEY",
-  };
+  mapsapiKey: 'GOOGLE_MAPS_API_KEY'
+}
 
-  export default config;
+export default config

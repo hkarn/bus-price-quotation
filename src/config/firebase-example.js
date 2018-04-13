@@ -1,8 +1,13 @@
-import firebase from 'firebase';
+import firebase from 'firebase'
 
 const config = {
-    ///FIREBASE CONFIG GOES HERE
-  };
-  firebase.initializeApp(config);
+  apiKey: '',
+  authDomain: '',
+  databaseURL: '',
+  projectId: '',
+  storageBucket: '',
+  messagingSenderId: ''
+}
+firebase.initializeApp(config)
 
-  export default firebase;
+export default firebase

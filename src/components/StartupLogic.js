@@ -1,31 +1,28 @@
-import React, { Component } from 'react';
-import { bindActionCreators }from 'redux'
+import React, { Component } from 'react'
+import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-
-
+import PropTypes from 'prop-types'
 import {readPrices} from '../actions/'
 
-
 class StartupLogic extends Component {
-
-  
-  componentDidMount() {
-    this.props.readPrices()
+  componentDidMount () {
+    const { readPrices } = this.props
+    readPrices()
   }
-  
-  
-  render() {
 
+  render () {
     return (
-      <div className="startuplogic"> 
-      </div>
-    );
-
+      <div className="startuplogic" />
+    )
   }
+}
+
+StartupLogic.propTypes = {
+  readPrices: PropTypes.func
 }
 
 const mapDispatchToProps = dispatch => bindActionCreators({
   readPrices
 }, dispatch)
 
-export default connect(null, mapDispatchToProps)(StartupLogic);
+export default connect(null, mapDispatchToProps)(StartupLogic)

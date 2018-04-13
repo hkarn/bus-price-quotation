@@ -54,4 +54,6 @@ build
 src/**/*.css
 src/config/config.js
 src/config/firebase.js
-.vscode/settings.json
+.vscode
+.firebaserc
+

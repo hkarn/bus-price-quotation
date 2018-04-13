@@ -1,25 +1,29 @@
-import React, { Component } from 'react';
-
-
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 
 class ShowPrelResults extends Component {
+  render () {
+    const { doesShow, km, traffic, hasBreak } = this.props
 
- 
-  render() {
-    if (!this.props.doesShow) {
+    if (!doesShow) {
       return null
     }
 
     return (
       <ul>
-        <li>{this.props.km}</li>
-        <li>{this.props.traffic}</li>
-        <li>{this.props.break ? "inkl 45 min rast" : "Ingen rast"}</li>  
+        <li>{km}</li>
+        <li>{traffic}</li>
+        <li>{hasBreak ? 'inkl 45 min rast' : 'Ingen rast'}</li>
       </ul>
-    );
-
+    )
   }
 }
 
+ShowPrelResults.propTypes = {
+  doesShow: PropTypes.bool,
+  km: PropTypes.string,
+  traffic: PropTypes.string,
+  hasBreak: PropTypes.bool
+}
 
 export default ShowPrelResults

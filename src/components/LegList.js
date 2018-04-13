@@ -1,13 +1,11 @@
-import React, { Component } from 'react';
-import moment from "moment";
-import "moment/locale/sv";
-
+import React, { Component } from 'react'
+import moment from 'moment'
+import 'moment/locale/sv'
 
 class LegList extends Component {
-
- 
-  render() {
-    if (this.props.trips.length < 1) {
+  render () {
+    const {...props} = this.props
+    if (props.trips.length < 1) {
       return (
         <ul><li>
           Det finns inga körningar eller raster i detta uppdrag ännu.
@@ -15,9 +13,8 @@ class LegList extends Component {
       )
     }
 
-    const listTrips = this.props.trips.map((trip, index, list) => {
-      
-      let answer = [{
+    const listTrips = props.trips.map((trip, index, list) => {
+      const answer = [{
         start: null,
         end: null,
         from: null,
@@ -26,30 +23,29 @@ class LegList extends Component {
         duration: null,
         break: null,
         codriver: null,
-        isbreak: null,
+        isbreak: null
       }]
 
-      if (list[index-1] !== undefined && trip.end.isValid() && trip.start.isValid()) {
+      if (list[index - 1] !== undefined && trip.end.isValid() && trip.start.isValid()) {
         const duration = moment.duration(moment(trip.end).diff(trip.start))
         if (duration.asMinutes() > 5) {
-          answer[0].start = list[index-1].end
+          answer[0].start = list[index - 1].end
           answer[0].end = trip.start
           answer[0].km = 0
           answer[0].duration = moment.duration(moment(answer[0].end).diff(answer[0].start))
           answer[0].isbreak = false
-          answer[0].from = "waiting"
-          answer[0].to = "waiting"
+          answer[0].from = 'waiting'
+          answer[0].to = 'waiting'
         }
       }
-/*    
+      /*
 
       if (trip.isbreak) {
         return ;
       } else {
         return ;
       }
-    */    }
-      
+    */ }
 
     )
     /*
@@ -63,24 +59,14 @@ class LegList extends Component {
     codriver: input.multidriver,
     isbreak: false,
 */
-    //if (this.props.isbreak)
-    console.log(listTrips)
-
-    const arr1 = [1,2,3,4,[5,6,7],8,9]
-
-    console.log(arr1)
-    const arr2 = [].concat.apply([], arr1);
-    console.log(arr2)
+    // if (this.props.isbreak)
 
     return (
       <ul>
-        {//listTrips
-        }
+        {listTrips}
       </ul>
     )
-
   }
 }
-
 
 export default LegList

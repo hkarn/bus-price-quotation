@@ -11,16 +11,15 @@ const Home = props => (
     <div className="left">
       <Planner />
     </div>
-    
+
     <div className="right">
-      
+
       <ResultViewer />
     </div>
 
   </div>
 )
 
-
 export default connect(
-  null 
+  null
 )(Home)

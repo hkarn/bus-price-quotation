@@ -1,52 +1,46 @@
-import React, { Component } from "react";
-import { bindActionCreators } from "redux";
-import { connect } from "react-redux";
+import React, { Component } from 'react'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
 
-import ReactDependentScript from "react-dependent-script";
-import PlacesAutocomplete /*, { geocodeByAddress, getLatLng }*/ from "react-places-autocomplete";
-import DateTime from "react-datetime";
-import FontAwesome from "react-fontawesome";
+import ReactDependentScript from 'react-dependent-script'
+import PlacesAutocomplete /*, { geocodeByAddress, getLatLng } */ from 'react-places-autocomplete'
+import DateTime from 'react-datetime'
+import FontAwesome from 'react-fontawesome'
 
-import config from "../config/config.js";
+import config from '../config/config.js'
 
-import {addLeg, toggleSetting} from '../actions'
+import {addLeg} from '../actions'
 
-import moment from "moment";
-import "moment/locale/sv";
+import moment from 'moment'
+import 'moment/locale/sv'
 
-import "../styles/react-datetime.css";
-import "../styles/component-styles/Planner.css";
-import addressStyle from "../styles/adressFormStyles";
+import '../styles/react-datetime.css'
+import '../styles/component-styles/Planner.css'
+import addressStyle from '../styles/adressFormStyles'
 
-import ShowPrelResults from "./ShowPrelResults"
+import ShowPrelResults from './ShowPrelResults'
 
 import { durationToString } from '../functions'
 
-moment.locale("sv");
+moment.locale('sv')
 
 class Planner extends Component {
-
-  
-
-
   state = {
     start: moment(),
     end: null,
     breakstart: moment(),
     breakend: moment(),
-    fromField: "",
-    toField: "",
+    fromField: '',
+    toField: '',
     km: null,
     traffic: null,
     response: null,
-    break45: false,       //45 min break included in time (all durations above 4.5 hours)
-    multidriver: false,
+    break45: false, // 45 min break included in time (all durations above 4.5 hours)
+    multidriver: false
   }
 
-
-
 handleChangeBreakStart = event => {
-  const valid = moment(event,"YYYY-MM-DD HH:mm", true).isValid() ? true : false
+  const valid = !!moment(event, 'YYYY-MM-DD HH:mm', true).isValid()
   if (valid) {
     this.setState({ breakstart: moment(event) })
     document.getElementsByClassName('break-start')[0].firstChild.style.color = 'black'
@@ -56,17 +50,17 @@ handleChangeBreakStart = event => {
 }
 
 handleChangeBreakEnd = event => {
-  const valid = moment(event,"YYYY-MM-DD HH:mm", true).isValid() ? true : false
+  const valid = !!moment(event, 'YYYY-MM-DD HH:mm', true).isValid()
   if (valid) {
     this.setState({ breakend: moment(event) })
     document.getElementsByClassName('break-end')[0].firstChild.style.color = 'black'
-  }  else {
-    document.getElementsByClassName('break-end')[0].firstChild.style.color = 'red'   
+  } else {
+    document.getElementsByClassName('break-end')[0].firstChild.style.color = 'red'
   }
 }
 
   handleChangeStart = event => {
-    const valid = moment(event,"YYYY-MM-DD HH:mm", true).isValid() ? true : false
+    const valid = !!moment(event, 'YYYY-MM-DD HH:mm', true).isValid()
     if (valid) {
       this.setState({ start: moment(event) })
       document.getElementsByClassName('start-time-selector')[0].firstChild.style.color = 'black'
@@ -76,62 +70,67 @@ handleChangeBreakEnd = event => {
   }
 
   handleChangeEnd = event => {
-    const valid = moment(event,"YYYY-MM-DD HH:mm", true).isValid() ? true : false
+    const valid = !!moment(event, 'YYYY-MM-DD HH:mm', true).isValid()
     if (valid) {
       this.setState({ end: moment(event) })
       document.getElementsByClassName('end-time-selector')[0].firstChild.style.color = 'black'
-    }  else {
-      document.getElementsByClassName('end-time-selector')[0].firstChild.style.color = 'red'   
+    } else {
+      document.getElementsByClassName('end-time-selector')[0].firstChild.style.color = 'red'
     }
   }
 
   onChangeFrom = fromField => {
+    const { ...state } = this.state
     this.setState({ fromField: fromField })
-    if (this.state.fromField !== "" && this.state.toField !== "") {
+    if (state.fromField !== '' && state.toField !== '') {
       this.getDistance(
-        [this.state.fromField],
-        [this.state.toField],
+        [state.fromField],
+        [state.toField],
         window.google
       )
     }
   }
 
   onBlurFrom = event => {
+    const { ...state } = this.state
     this.setState({ fromField: event.target.value })
-    if (this.state.fromField !== "" && this.state.toField !== "" && event.target.value !== "") {
+    if (state.fromField !== '' && state.toField !== '' && event.target.value !== '') {
       this.getDistance(
-        [this.state.fromField],
-        [this.state.toField],
+        [state.fromField],
+        [state.toField],
         window.google
       )
     }
   }
 
-
   onChangeTo = toField => {
+    const { ...state } = this.state
     this.setState({ toField: toField })
-    if (this.state.fromField !== "" && this.state.toField !== "") {
+    if (state.fromField !== '' && state.toField !== '') {
       this.getDistance(
-        [this.state.fromField],
-        [this.state.toField],
+        [state.fromField],
+        [state.toField],
         window.google
       )
     }
   }
 
   onBlurTo = event => {
+    const { ...state } = this.state
     this.setState({ toField: event.target.value })
-    if (this.state.fromField !== "" && this.state.toField !== "" && event.target.value !== "") {
+    if (state.fromField !== '' && state.toField !== '' && event.target.value !== '') {
       this.getDistance(
-        [this.state.fromField],
-        [this.state.toField],
+        [state.fromField],
+        [state.toField],
         window.google
       )
     }
   }
 
-  getDistance = (origins, destinations, google, actionTrigger='NONE') => {
-    const service = new google.maps.DistanceMatrixService();
+  getDistance = (origins, destinations, google, actionTrigger = 'NONE') => {
+    const { ...state } = this.state
+    const { ...props } = this.props
+    const service = new google.maps.DistanceMatrixService()
     service.getDistanceMatrix(
       {
         origins: origins,
@@ -141,15 +140,13 @@ handleChangeBreakEnd = event => {
         avoidHighways: false,
         avoidTolls: false,
         drivingOptions: {
-          departureTime: new Date(this.state.start.toDate()),
+          departureTime: new Date(state.start.toDate()),
           trafficModel: google.maps.TrafficModel.BEST_GUESS
         }
       },
       (response, status) => {
-        console.log(response)
-        console.log(status)
-        if (status === "OK" && response.destinationAddresses[0] !== "" && response.originAddresses[0] !== "" && response.rows[0].elements[0].status !== "ZERO_RESULTS") {
-          //We use duration_in_traffic as default if normal time answer is longer we want to use that duration
+        if (status === 'OK' && response.destinationAddresses[0] !== '' && response.originAddresses[0] !== '' && response.rows[0].elements[0].status !== 'ZERO_RESULTS') {
+          // We use duration_in_traffic as default if normal time answer is longer we want to use that duration
           if (response.rows[0].elements[0].duration_in_traffic.value < response.rows[0].elements[0].duration.value) {
             response.rows[0].elements[0].duration_in_traffic = response.rows[0].elements[0].duration
           }
@@ -161,74 +158,72 @@ handleChangeBreakEnd = event => {
             Legal driving rules hardcoded in this version
           */
           const topavgtargetspeed = 90
-          const km = response.rows[0].elements[0].distance.value/1000
-          const hour = response.rows[0].elements[0].duration_in_traffic.value/3600
-          if ((km/hour) > topavgtargetspeed) { //if average speed is above Xkm/h expand time
-            response.rows[0].elements[0].duration_in_traffic.value = ((3600*km)/(topavgtargetspeed)) //sets duration to Xkm/h average speed
+          const km = response.rows[0].elements[0].distance.value / 1000
+          const hour = response.rows[0].elements[0].duration_in_traffic.value / 3600
+          if ((km / hour) > topavgtargetspeed) { // if average speed is above Xkm/h expand time
+            response.rows[0].elements[0].duration_in_traffic.value = (3600 * km) / topavgtargetspeed // sets duration to Xkm/h average speed
             response.rows[0].elements[0].duration_in_traffic.text = durationToString(response.rows[0].elements[0].duration_in_traffic.value)
           }
-          //Check driving times and breaks
-          if (response.rows[0].elements[0].duration_in_traffic.value > 9*3600) {
+          // Check driving times and breaks
+          if (response.rows[0].elements[0].duration_in_traffic.value > 9 * 3600) {
             this.setState({'multidriver': true})
           } else {
             this.setState({'multidriver': false})
           }
 
-          if (response.rows[0].elements[0].duration_in_traffic.value > 4.25*3600) {
-            this.setState({'break45': true})    
-            response.rows[0].elements[0].duration_in_traffic.value = response.rows[0].elements[0].duration_in_traffic.value + (45*60)
+          if (response.rows[0].elements[0].duration_in_traffic.value > 4.25 * 3600) {
+            this.setState({'break45': true})
+            response.rows[0].elements[0].duration_in_traffic.value = response.rows[0].elements[0].duration_in_traffic.value + (45 * 60)
             response.rows[0].elements[0].duration_in_traffic.text = durationToString(response.rows[0].elements[0].duration_in_traffic.value)
           } else {
-            this.setState({'break45': false})  
+            this.setState({'break45': false})
           }
 
-          let start = this.state.start.clone();
+          const start = state.start.clone()
           this.setState({ end: start.add(response.rows[0].elements[0].duration_in_traffic.value, 's') })
           this.setState({ traffic: response.rows[0].elements[0].duration_in_traffic })
           this.setState({ km: response.rows[0].elements[0].distance })
           this.setState({ response: status })
         } else {
-          this.setState({ response: "Ingen rutt hittad" })
+          this.setState({ response: 'Ingen rutt hittad' })
         }
 
-        if (this.state.response === "OK" && this.state.km !== null && this.state.no_traffic !== null && this.state.traffic !== null) {
-          this.setState({'showResult':true})
+        if (state.response === 'OK' && state.km !== null && state.no_traffic !== null && state.traffic !== null) {
+          this.setState({'showResult': true})
         }
-        //Dispatch Action on response
-        if (actionTrigger !== 'NONE' && this.state.response === "OK")
-          this.props.addLeg(actionTrigger, Object.assign({}, this.state))
-
+        // Dispatch Action on response
+        if (actionTrigger !== 'NONE' && state.response === 'OK') { props.addLeg(actionTrigger, Object.assign({}, state)) }
       }
-    );
+    )
   };
 
-  render() {
+  render () {
+    const { ...state } = this.state
+    const { ...props } = this.props
+
     const inputPropsFrom = {
-      value: this.state.fromField,
+      value: state.fromField,
       onChange: this.onChangeFrom,
-      onBlur: this.onBlurFrom,
-    };
+      onBlur: this.onBlurFrom
+    }
 
     const inputPropsTo = {
-      value: this.state.toField,
+      value: state.toField,
       onChange: this.onChangeTo,
-      onBlur: this.onBlurTo,
-    };
-
-    
-
-
-    
+      onBlur: this.onBlurTo
+    }
 
     return (
+
       <div className="planner">
+        {/* eslint-disable react/forbid-component-props */}
         <h1>Planera uppdrag</h1>
         <label htmlFor="start-time">Starttid</label>
         <DateTime
-          value={this.state.start}
+          value={state.start}
           onChange={this.handleChangeStart}
           className="planner-datepicker start-time-selector"
-          
+
         />
         <ReactDependentScript
           loadingComponent={
@@ -237,9 +232,9 @@ handleChangeBreakEnd = event => {
             </div>
           }
           scripts={[
-            "https://maps.googleapis.com/maps/api/js?key=" +
+            'https://maps.googleapis.com/maps/api/js?key=' +
               config.mapsapiKey +
-              "&libraries=places"
+              '&libraries=places'
           ]}
         >
           <div className="planner-locations">
@@ -259,35 +254,35 @@ handleChangeBreakEnd = event => {
             />
           </div>
           <div className="planner-leg-results">
-            <ShowPrelResults 
-              doesShow={this.state.showResult} 
-              traffic={this.state.traffic === null ? "Hittades inte" : this.state.traffic.text} 
-              break={this.state.break45} 
-              km={this.state.km === null ? "Hittades inte" : this.state.km.text}/>
+            <ShowPrelResults
+              doesShow={state.showResult}
+              traffic={state.traffic === null ? 'Hittades inte' : state.traffic.text}
+              hasBreak={state.break45}
+              km={state.km === null ? 'Hittades inte' : state.km.text} />
           </div>
           <div>
             <input type="checkbox" id="empty-leg" />
             <label htmlFor="empty-leg">Tomkörning</label>
           </div>
           <div className="planner-controls">
-            
+
             <label htmlFor="end-time">Sluttid</label>
             <DateTime
-              value={this.state.end}
+              value={state.end}
               onChange={this.handleChangeEnd}
               className="planner-datepicker end-time-selector"
               id="end-time"
             />
-            <p className={'planner-controls-time ' + (this.state.multidriver ? 'red' : '') }>
-              {(this.state.end !== null && this.state.end.isValid()) ? "Körtid: " + moment.duration(this.state.end.diff(this.state.start)).asHours().toFixed(2) + " timmar" : ""}
-              {(this.state.end !== null && this.state.end.isValid()) && this.state.break45 ? " (inkluderar 45 min rast)" : ""}
-              {(this.state.end !== null && this.state.end.isValid()) && this.state.multidriver ? " 2 förare krävs!" : ""}
-              </p>
+            <p className={'planner-controls-time ' + (state.multidriver ? 'red' : '')}>
+              {state.end !== null && state.end.isValid() ? 'Körtid: ' + moment.duration(state.end.diff(state.start)).asHours().toFixed(2) + ' timmar' : ''}
+              {(state.end !== null && state.end.isValid()) && state.break45 ? ' (inkluderar 45 min rast)' : ''}
+              {(state.end !== null && state.end.isValid()) && state.multidriver ? ' 2 förare krävs!' : ''}
+            </p>
             <button
               onClick={() =>
                 this.getDistance(
-                  [this.state.fromField],
-                  [this.state.toField],
+                  [state.fromField],
+                  [state.toField],
                   window.google,
                   'TRIP'
                 )
@@ -301,21 +296,21 @@ handleChangeBreakEnd = event => {
           <h3>Rast/Avbrott</h3>
           <label htmlFor="break-start">Avbrott starttid</label>
           <DateTime
-            value={this.state.breakstart}
+            value={state.breakstart}
             onChange={this.handleChangeBreakStart}
             className="planner-datepicker break-start"
           />
           <label htmlFor="break-end">Avbrott sluttid</label>
           <DateTime
-            value={this.state.breakend}
+            value={state.breakend}
             onChange={this.handleChangeBreakEnd}
             className="planner-datepicker break-end"
           />
           <button
-              onClick={() =>
-                this.props.addLeg('BREAK', Object.assign({}, this.state))
-              }
-            >
+            onClick={() =>
+              props.addLeg('BREAK', Object.assign({}, state))
+            }
+          >
             Lägg till obetald tid i uppdraget
             <FontAwesome name="chevron-right" />
           </button>
@@ -328,8 +323,10 @@ handleChangeBreakEnd = event => {
           <input type="checkbox" id="two-drivers" />
           <label htmlFor="two-drivers">Två förare</label>
         </div>
+        {/* eslint-enable react/forbid-component-props */}
       </div>
-    );
+
+    )
   }
 }
 
@@ -337,7 +334,4 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   addLeg
 }, dispatch)
 
-export default connect(null, mapDispatchToProps)(Planner);
-
-
-
+export default connect(null, mapDispatchToProps)(Planner)
