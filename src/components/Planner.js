@@ -28,10 +28,10 @@ moment.locale('sv')
 
 class Planner extends Component {
   state = {
-    start: moment(),
+    start: moment().add(6, 'hours'),
     end: null,
-    breakstart: moment(),
-    breakend: moment(),
+    breakstart: moment().add(6, 'hours'),
+    breakend: moment().add(6, 'hours'),
     fromField: '',
     toField: '',
     km: null,
@@ -295,7 +295,7 @@ handleChangeBreakEnd = event => {
           </div>
         </ReactDependentScript>
         <div className="planner-break">
-          <h3>Rast/Avbrott</h3>
+          <h3>Övrig tid betald eller obetald</h3>
           <label htmlFor="break-start">Avbrott starttid</label>
           <DateTime
             value={state.breakstart}
@@ -313,7 +313,7 @@ handleChangeBreakEnd = event => {
               props.addLeg('BREAK', Object.assign({}, state))
             }
           >
-            Lägg till obetald tid i uppdraget <FontAwesomeIcon icon={faAngleRight} />
+            Lägg till tid i uppdraget <FontAwesomeIcon icon={faAngleRight} />
           </button>
         </div>
         <div className="planner-options">
