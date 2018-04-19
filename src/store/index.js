@@ -14,9 +14,10 @@ const middleware = [
 ]
 
 if (process.env.NODE_ENV === 'development') {
+  // eslint-disable-next-line
   console.log('DEV! STARTING DEV TOOLS AND FREEZE...')
   const freeze = require('redux-freeze')
-  middleware.push(freeze);
+  middleware.push(freeze)
   const devToolsExtension = window.window.__REDUX_DEVTOOLS_EXTENSION__
 
   if (typeof devToolsExtension === 'function') {

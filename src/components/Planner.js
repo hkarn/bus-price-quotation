@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import ReactDependentScript from 'react-dependent-script'
-import PlacesAutocomplete /*, { geocodeByAddress, getLatLng } */ from 'react-places-autocomplete'
+import SelectAddress from './SelectAddress'
 import DateTime from 'react-datetime'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faAngleRight from '@fortawesome/fontawesome-free-solid/faAngleRight'
@@ -18,7 +18,6 @@ import 'moment/locale/sv'
 
 import '../styles/react-datetime.css'
 import '../styles/component-styles/Planner.css'
-import addressStyle from '../styles/adressFormStyles'
 
 import ShowPrelResults from './ShowPrelResults'
 
@@ -27,18 +26,26 @@ import { durationToString } from '../functions'
 moment.locale('sv')
 
 class Planner extends Component {
-  state = {
-    start: moment().add(6, 'hours'),
-    end: null,
-    breakstart: moment().add(6, 'hours'),
-    breakend: moment().add(6, 'hours'),
-    fromField: '',
-    toField: '',
-    km: null,
-    traffic: null,
-    response: null,
-    break45: false, // 45 min break included in time (all durations above 4.5 hours)
-    multidriver: false
+  constructor (props) {
+    super(props)
+    this.state = {
+      start: moment().add(6, 'hours'),
+      end: null,
+      breakstart: moment().add(6, 'hours'),
+      breakend: moment().add(6, 'hours'),
+      fromField: '',
+      toField: '',
+      km: null,
+      traffic: null,
+      response: null,
+      break45: false, // 45 min break included in time (all durations above 4.5 hours)
+      multidriver: false,
+      showResult: false
+    }
+  }
+
+  componentDidUpdate () {
+
   }
 
 handleChangeBreakStart = event => {
@@ -81,52 +88,30 @@ handleChangeBreakEnd = event => {
     }
   }
 
-  onChangeFrom = fromField => {
-    const { ...state } = this.state
-    this.setState({ fromField: fromField })
-    if (state.fromField !== '' && state.toField !== '') {
-      this.getDistance(
-        [state.fromField],
-        [state.toField],
-        window.google
-      )
-    }
+  handleTo = value => {
+    this.setState({ toField: value }, () => {
+      const { ...state } = this.state
+      if (state.fromField !== '' && state.toField !== '') {
+        this.getDistance(
+          [state.fromField],
+          [state.toField],
+          window.google
+        )
+      }
+    })
   }
 
-  onBlurFrom = event => {
-    const { ...state } = this.state
-    this.setState({ fromField: event.target.value })
-    if (state.fromField !== '' && state.toField !== '' && event.target.value !== '') {
-      this.getDistance(
-        [state.fromField],
-        [state.toField],
-        window.google
-      )
-    }
-  }
-
-  onChangeTo = toField => {
-    const { ...state } = this.state
-    this.setState({ toField: toField })
-    if (state.fromField !== '' && state.toField !== '') {
-      this.getDistance(
-        [state.fromField],
-        [state.toField],
-        window.google
-      )
-    }
-  }
-
-  onBlurTo = event => {
-    const { ...state } = this.state
-    this.setState({ toField: event.target.value })
-    if (state.fromField !== '' && state.toField !== '' && event.target.value !== '') {
-      this.getDistance(
-        [state.fromField],
-        [state.toField],
-        window.google
-      )
-    }
+  handleFrom = value => {
+    this.setState({ fromField: value }, () => {
+      const { ...state } = this.state
+      if (state.fromField !== '' && state.toField !== '') {
+        this.getDistance(
+          [state.fromField],
+          [state.toField],
+          window.google
+        )
+      }
+    })
   }
 
   getDistance = (origins, destinations, google, actionTrigger = 'NONE') => {
@@ -147,6 +132,9 @@ handleChangeBreakEnd = event => {
         }
       },
       (response, status) => {
+        let newState = state
+        console.log(newState)
+
         if (status === 'OK' && response.destinationAddresses[0] !== '' && response.originAddresses[0] !== '' && response.rows[0].elements[0].status !== 'ZERO_RESULTS') {
           // We use duration_in_traffic as default if normal time answer is longer we want to use that duration
           if (response.rows[0].elements[0].duration_in_traffic.value < response.rows[0].elements[0].duration.value) {
@@ -168,33 +156,44 @@ handleChangeBreakEnd = event => {
           }
           // Check driving times and breaks
           if (response.rows[0].elements[0].duration_in_traffic.value > 9 * 3600) {
-            this.setState({'multidriver': true})
+            newState = {...newState, ...{'multidriver': true}}
           } else {
-            this.setState({'multidriver': false})
+            newState = {...newState, ...{'multidriver': false}}
           }
+          console.log(newState)
 
           if (response.rows[0].elements[0].duration_in_traffic.value > 4.25 * 3600) {
-            this.setState({'break45': true})
+            newState = {...newState, ...{'break45': true}}
             response.rows[0].elements[0].duration_in_traffic.value = response.rows[0].elements[0].duration_in_traffic.value + (45 * 60)
             response.rows[0].elements[0].duration_in_traffic.text = durationToString(response.rows[0].elements[0].duration_in_traffic.value)
           } else {
-            this.setState({'break45': false})
+            newState = {...newState, ...{'break45': false}}
           }
+          console.log(newState)
 
           const start = state.start.clone()
-          this.setState({ end: start.add(response.rows[0].elements[0].duration_in_traffic.value, 's') })
-          this.setState({ traffic: response.rows[0].elements[0].duration_in_traffic })
-          this.setState({ km: response.rows[0].elements[0].distance })
-          this.setState({ response: status })
+          newState = {...newState,
+            ...{end: start.add(response.rows[0].elements[0].duration_in_traffic.value, 's'),
+              traffic: response.rows[0].elements[0].duration_in_traffic,
+              km: response.rows[0].elements[0].distance
+            }
+          }
         } else {
-          this.setState({ response: 'Ingen rutt hittad' })
+          newState = {...newState,
+            ...{traffic: null,
+              km: null
+            }
+          }
+        }
+        console.log(newState)
+        if (status === 'OK' && response.rows[0].elements[0].distance !== null && response.rows[0].elements[0].duration_in_traffic !== null) {
+          newState = {...newState, ...{'showResult': true}}
         }
 
-        if (state.response === 'OK' && state.km !== null && state.no_traffic !== null && state.traffic !== null) {
-          this.setState({'showResult': true})
-        }
-        // Dispatch Action on response
-        if (actionTrigger !== 'NONE' && state.response === 'OK') { props.addLeg(actionTrigger, Object.assign({}, state)) }
+        this.setState(newState)
+        console.log(newState)
+        // Dispatch Action on response if from actionTrigger
+        if (actionTrigger !== 'NONE' && response === 'OK') { props.addLeg(actionTrigger, Object.assign({}, newState)) }
       }
     )
   };
@@ -203,22 +202,18 @@ handleChangeBreakEnd = event => {
     const { ...state } = this.state
     const { ...props } = this.props
 
-    const inputPropsFrom = {
-      value: state.fromField,
-      onChange: this.onChangeFrom,
-      onBlur: this.onBlurFrom
-    }
+    console.log('state: ', state)
+    console.log('props: ', props)
 
-    const inputPropsTo = {
-      value: state.toField,
-      onChange: this.onChangeTo,
-      onBlur: this.onBlurTo
+    let searchOpts = {}
+
+    if (typeof window.google !== 'undefined') {
+      searchOpts = { location: new window.google.maps.LatLng(57.735725, 11.975619), radius: 80000 }
     }
 
     return (
 
       <div className="planner">
-        {/* eslint-disable react/forbid-component-props */}
         <h1>Planera uppdrag</h1>
         <label htmlFor="start-time">Starttid</label>
         <DateTime
@@ -229,7 +224,7 @@ handleChangeBreakEnd = event => {
         />
         <ReactDependentScript
           loadingComponent={
-            <div>
+            <div style={{margin: '10px', fontSize: '1.5em'}}>
               Ansluter till Google Maps <FontAwesomeIcon icon={faSpinner} pulse />
             </div>
           }
@@ -241,19 +236,17 @@ handleChangeBreakEnd = event => {
         >
           <div className="planner-locations">
             <label htmlFor="from-address">Från adress</label>
-            <PlacesAutocomplete
-              inputProps={inputPropsFrom}
-              styles={addressStyle}
+            <SelectAddress
+              handler={this.handleFrom}
               id="from-address"
-              tabindex="1"
-            />
+              tab_index={1}
+              options={searchOpts} />
             <label htmlFor="to-address">Till adress</label>
-            <PlacesAutocomplete
-              inputProps={inputPropsTo}
-              styles={addressStyle}
+            <SelectAddress
+              handler={this.handleTo}
               id="to-address"
-              tabindex="2"
-            />
+              tab_index={2}
+              options={searchOpts} />
           </div>
           <div className="planner-leg-results">
             <ShowPrelResults
@@ -295,19 +288,28 @@ handleChangeBreakEnd = event => {
           </div>
         </ReactDependentScript>
         <div className="planner-break">
-          <h3>Övrig tid betald eller obetald</h3>
-          <label htmlFor="break-start">Avbrott starttid</label>
+          <h3>Övrig tid (betald eller obetald)</h3>
+          <label htmlFor="break-start">Starttid</label>
           <DateTime
             value={state.breakstart}
             onChange={this.handleChangeBreakStart}
             className="planner-datepicker break-start"
           />
-          <label htmlFor="break-end">Avbrott sluttid</label>
+          <label htmlFor="break-end">Sluttid</label>
           <DateTime
             value={state.breakend}
             onChange={this.handleChangeBreakEnd}
             className="planner-datepicker break-end"
           />
+          <p style={{width: '130px', textAlign: 'left', margin: '7px auto 2px auto'}}>
+            <input id="timeIsPaid" type="radio" name="isPaid" defaultChecked value="true" />
+            <label htmlFor="timeIsPaid">Betald tid</label>
+          </p>
+
+          <p style={{width: '130px', textAlign: 'left', margin: '2px auto'}}>
+            <input id="timeIsNotPaid" type="radio" name="isPaid" value="false" />
+            <label htmlFor="timeIsNotPaid">Obetald tid</label>
+          </p>
           <button
             onClick={() =>
               props.addLeg('BREAK', Object.assign({}, state))
@@ -317,14 +319,16 @@ handleChangeBreakEnd = event => {
           </button>
         </div>
         <div className="planner-options">
-          <h3>Inställningar</h3>
-          <input type="checkbox" id="less-then-30" />
-          <label htmlFor="less-then-30">Under 30 personer</label>
-          <br />
-          <input type="checkbox" id="two-drivers" />
-          <label htmlFor="two-drivers">Två förare</label>
+          <h3 style={{marginBottom: '10px'}}>Inställningar</h3>
+          <p style={{width: '200px', textAlign: 'left', margin: '2px auto'}}>
+            <input type="checkbox" id="less-then-30" />
+            <label htmlFor="less-then-30">Under 30 personer</label>
+          </p>
+          <p style={{width: '200px', textAlign: 'left', margin: '2px auto'}}>
+            <input type="checkbox" id="two-drivers" />
+            <label htmlFor="two-drivers">Två förare</label>
+          </p>
         </div>
-        {/* eslint-enable react/forbid-component-props */}
       </div>
 
     )

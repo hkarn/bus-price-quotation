@@ -1,48 +1,57 @@
 import React from 'react'
-import { push } from 'react-router-redux'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import PropTypes from 'prop-types'
+import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete'
 
-const About = props => (
-  <div>
-    <h1>About</h1>
-    <p>Welcome home!</p>
-    <header>
-      <nav>
-        <ul>
-          <li>
-              hej
-          </li>
-          <li>
-              hå
-          </li>
-          <li>
-              hallo
-          </li>
-        </ul>
-      </nav>
-    </header>
+class About extends React.Component {
+  constructor (props) {
+    super(props)  
+    this.state = { address: '' }
+  }
 
-    <main>
-        main
-    </main>
-    <footer>
-      main footer
-    </footer>
-    <button onClick={() => props.changePage()}>Go to about page via redux</button>
-  </div>
-)
+  handleChange = (address) => {
+    this.setState({ address })
+  }
 
-About.propTypes = {
-  changePage: PropTypes.func
+  handleSelect = (address) => {
+    geocodeByAddress(address)
+      .then(results => getLatLng(results[0]))
+      .then(latLng => console.log('Success', latLng))
+      .catch(error => console.error('Error', error))
+  }
+
+  render () {
+    return (
+      <PlacesAutocomplete
+        value={this.state.address}
+        onChange={this.handleChange}
+        onSelect={this.handleSelect}
+      >
+        {({ getInputProps, suggestions, getSuggestionItemProps }) => (
+          <div>
+            <input
+              {...getInputProps({
+                placeholder: 'Search Places ...',
+                className: 'location-search-input'
+              })}
+            />
+            <div className="autocomplete-dropdown-container">
+              {suggestions.map(suggestion => {
+                const className = suggestion.active ? 'suggestion-item--active' : 'suggestion-item'
+                // inline style for demonstration purpose
+                const style = suggestion.active
+                  ? { backgroundColor: '#fafafa', cursor: 'pointer' }
+                  : { backgroundColor: '#ffffff', cursor: 'pointer' }
+                return (
+                  <div {...getSuggestionItemProps(suggestion, { className, style })}>
+                    <span>{suggestion.description}</span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+      </PlacesAutocomplete>
+    )
+  }
 }
 
-const mapDispatchToProps = dispatch => bindActionCreators({
-  changePage: () => push('/')
-}, dispatch)
-
-export default connect(
-  null,
-  mapDispatchToProps
-)(About)
+export default About

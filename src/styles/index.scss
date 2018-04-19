@@ -1,5 +1,10 @@
 @import 'global';
+@import "../../node_modules/@fortawesome/fontawesome-free-webfonts/scss/fa-regular.scss";
+@import "../../node_modules/@fortawesome/fontawesome-free-webfonts/scss/fa-solid.scss";
 
+html {
+  -webkit-font-smoothing: antialiased;
+}
 
 * {
   box-sizing: border-box;
@@ -25,4 +30,77 @@ input {
 
 .red {
   color: red;
+}
+
+input[type=checkbox] {
+  display: none;
+}
+
+input[type=checkbox] + label {
+  font-weight: normal;
+  font-size: 1.22em;
+  right:0; left:0;
+  padding-left: 5px;
+  cursor: pointer;
+  margin: 8px auto;
+}
+input[type=checkbox] + label:hover {
+  font-weight: bold;
+}
+input[type=checkbox] + label::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 400;
+  display: inline-block;
+  content: "\f0c8";
+  width: 1.5em;
+  color: black;
+}
+
+input[type=checkbox]:checked + label {
+  font-weight: bold;
+}
+
+input[type=checkbox]:checked + label:hover {
+  font-weight: normal;
+}
+
+input[type=checkbox]:checked + label::before {
+  content: "\f14a";
+}
+
+input[type=radio] {
+  display: none;
+}
+
+input[type=radio] + label {
+  font-weight: normal;
+  font-size: 1.22em;
+  right:0; left:0;
+  padding-left: 5px;
+  cursor: pointer;
+  margin: 8px auto;
+}
+input[type=radio] + label:hover {
+  font-weight: bold;
+}
+input[type=radio] + label::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 400;
+  display: inline-block;
+  content: "\f111";
+  width: 1.5em;
+  color: black;
+}
+
+input[type=radio]:checked + label {
+  font-weight: bold;
+}
+
+input[type=radio]:checked + label:hover {
+  font-weight: normal;
+}
+
+input[type=radio]:checked + label::before {
+  font-weight: 400;
+  content: "\f192";
 }

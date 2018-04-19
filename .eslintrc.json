@@ -32,7 +32,6 @@
         "jsx-quotes": ["error", "prefer-double"],
         "react/boolean-prop-naming": [2, { "rule": "^(is|has|does)[A-Z]([A-Za-z0-9]?)+" }],
         "react/destructuring-assignment": [2, "always"],
-        "react/forbid-component-props": [2],
         "react/no-access-state-in-setstate": [2],
         "react/no-did-mount-set-state": [2],
         "react/no-did-update-set-state": [2],

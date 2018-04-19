@@ -1,0 +1,83 @@
+// https://github.com/kenny-hibino/react-places-autocomplete/blob/master/demo/app.css
+
+.AddressComplete_suggestion-icon {
+  margin-right: 8px;
+}
+
+.AddressComplete_search-bar-container {
+  width: 90%;
+  max-width: 500px;
+  margin: 1px auto 10px;
+}
+
+.AddressComplete_search-input-container {
+  position: relative;
+}
+
+.AddressComplete_search-input,
+.AddressComplete_search-input:focus,
+.AddressComplete_search-input:active {
+  border: 1px #a5a5a5 solid;
+  border-radius: 4px;
+  display: block;
+  width: 100%;
+  padding: 16px;
+  font-size: 16px;
+  outline: none;
+}
+
+.AddressComplete_clear-button,
+.AddressComplete_clear-button:active,
+.AddressComplete_clear-button:focus {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  outline: none;
+  font-weight: 600;
+  color: #999;
+}
+
+.AddressComplete_autocomplete-container {
+  border: 1px #a5a5a5 solid;
+  border-top: 1px solid #e6e6e6;
+  border-radius: 0 0 4px 4px;
+}
+
+.AddressComplete_suggestion-item {
+  padding: 8px;
+  text-align: left;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.AddressComplete_suggestion-item--active {
+  background-color: #fafafa;
+}
+
+.AddressComplete_dropdown-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 4px;
+}
+
+.AddressComplete_dropdown-footer-image {
+  display: inline-block;
+  width: 150px;
+}
+
+.AddressComplete_spinner {
+  color: #18bc9c;
+  font-size: 30px;
+}
+
+.AddressComplete_error-message {
+  color: red;
+}
+
+.AddressComplete_geocode-result-header {
+  font-size: 20px;
+  color: #222222;
+}
