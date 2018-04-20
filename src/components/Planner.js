@@ -29,18 +29,24 @@ class Planner extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      start: moment().add(6, 'hours'),
-      end: null,
-      breakstart: moment().add(6, 'hours'),
-      breakend: moment().add(6, 'hours'),
-      isPaidBreak: false,
-      fromField: '',
-      toField: '',
-      km: null,
-      traffic: null,
+      drive: {
+        start: moment().add(6, 'hours'),
+        end: null,
+        fromField: '',
+        toField: '',
+        km: null,
+        traffic: null,
+        multidriver: false,
+        break45: false,
+      },
+      otherAssignment: {
+        breakstart: moment().add(6, 'hours'),
+        breakend: moment().add(6, 'hours'),
+        isPaidBreak: false,
+      },
+      hasTwoDrivers: false,
+      smallGroupDiscount: false,
       response: null,
-      break45: false, // 45 min break included in time (all durations above 4.5 hours)
-      multidriver: false,
       showResult: false,
       searchOpts: {}
     }
@@ -52,7 +58,7 @@ class Planner extends Component {
     this.setSearchOptsTimer = setInterval(() => {
       const { searchOpts } = this.state
       if (typeof window.google !== 'undefined') {
-        this.setState({searchOpts: { location: new window.google.maps.LatLng(57.735725, 11.975619), radius: 80000 }}, () => { clearInterval(this.setSearchOptsTimer) })
+        this.setState({searchOpts: { location: new window.google.maps.LatLng(57.735725, 11.975619), radius: 65000 }}, () => { clearInterval(this.setSearchOptsTimer) })
       }
       if (searchOpts !== {}) {
         clearInterval(this.setSearchOptsTimer)
@@ -67,7 +73,7 @@ class Planner extends Component {
 handleChangeBreakStart = event => {
   const valid = !!moment(event, 'YYYY-MM-DD HH:mm', true).isValid()
   if (valid) {
-    this.setState({ breakstart: moment(event) })
+    this.setState({ otherAssignment: breakstart: moment(event) })
     document.getElementsByClassName('break-start')[0].firstChild.style.color = 'black'
   } else {
     document.getElementsByClassName('break-start')[0].firstChild.style.color = 'red'
@@ -153,7 +159,6 @@ handleChangeBreakEnd = event => {
       },
       (response, status) => {
         let newState = state
-        console.log(newState)
 
         if (status === 'OK' && response.destinationAddresses[0] !== '' && response.originAddresses[0] !== '' && response.rows[0].elements[0].status !== 'ZERO_RESULTS') {
           // We use duration_in_traffic as default if normal time answer is longer we want to use that duration
@@ -180,7 +185,6 @@ handleChangeBreakEnd = event => {
           } else {
             newState = {...newState, ...{'multidriver': false}}
           }
-          console.log(newState)
 
           if (response.rows[0].elements[0].duration_in_traffic.value > 4.25 * 3600) {
             newState = {...newState, ...{'break45': true}}
@@ -189,7 +193,6 @@ handleChangeBreakEnd = event => {
           } else {
             newState = {...newState, ...{'break45': false}}
           }
-          console.log(newState)
 
           const start = state.start.clone()
           newState = {...newState,
@@ -205,13 +208,11 @@ handleChangeBreakEnd = event => {
             }
           }
         }
-        console.log(newState)
         if (status === 'OK' && response.rows[0].elements[0].distance !== null && response.rows[0].elements[0].duration_in_traffic !== null) {
           newState = {...newState, ...{'showResult': true}}
         }
 
         this.setState(newState)
-        console.log(newState)
         // Dispatch Action on response if from actionTrigger
         if (actionTrigger !== 'NONE' && response === 'OK') { props.addLeg(actionTrigger, Object.assign({}, newState)) }
       }
@@ -225,7 +226,6 @@ handleChangeBreakEnd = event => {
     console.log('state: ', state)
     console.log('props: ', props)
 
-console.log(state.searchOpts)
     return (
 
       <div className="planner">
