@@ -54,6 +54,7 @@ class Planner extends Component {
           onSelect={this.handleSelect}
           onError={this.handleError}
           shouldFetchSuggestions={state.address.length > 1}
+          searchOptions={props.options}
         >
           {({ getInputProps, suggestions, getSuggestionItemProps }) => {
             return (

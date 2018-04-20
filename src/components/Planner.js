@@ -41,12 +41,27 @@ class Planner extends Component {
       response: null,
       break45: false, // 45 min break included in time (all durations above 4.5 hours)
       multidriver: false,
-      showResult: false
+      showResult: false,
+      searchOpts: {}
     }
+    this.setSearchOptsTimer = null
   }
 
-  componentDidUpdate () {
+  componentDidMount () {
+    // attempt to set search parameters until google maps script loads
+    this.setSearchOptsTimer = setInterval(() => {
+      const { searchOpts } = this.state
+      if (typeof window.google !== 'undefined') {
+        this.setState({searchOpts: { location: new window.google.maps.LatLng(57.735725, 11.975619), radius: 80000 }}, () => { clearInterval(this.setSearchOptsTimer) })
+      }
+      if (searchOpts !== {}) {
+        clearInterval(this.setSearchOptsTimer)
+      }
+    }, 650)
+  }
 
+  componentWillUnmount () {
+    clearInterval(this.setSearchOptsTimer)
   }
 
 handleChangeBreakStart = event => {
@@ -210,12 +225,7 @@ handleChangeBreakEnd = event => {
     console.log('state: ', state)
     console.log('props: ', props)
 
-    let searchOpts = {}
-
-    if (typeof window.google !== 'undefined') {
-      searchOpts = { location: new window.google.maps.LatLng(57.735725, 11.975619), radius: 80000 }
-    }
-
+console.log(state.searchOpts)
     return (
 
       <div className="planner">
@@ -245,13 +255,13 @@ handleChangeBreakEnd = event => {
               handler={this.handleFrom}
               id="from-address"
               tab_index={1}
-              options={searchOpts} />
+              options={state.searchOpts} />
             <label htmlFor="to-address">Till adress</label>
             <SelectAddress
               handler={this.handleTo}
               id="to-address"
               tab_index={2}
-              options={searchOpts} />
+              options={state.searchOpts} />
           </div>
           <div className="planner-leg-results">
             <ShowPrelResults
