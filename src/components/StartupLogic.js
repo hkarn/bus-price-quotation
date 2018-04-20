@@ -4,6 +4,10 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import {readPrices} from '../actions/'
 
+
+// TODO
+//Fix this implimentation of startup
+
 class StartupLogic extends Component {
   componentDidMount () {
     const { readPrices } = this.props

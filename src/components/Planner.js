@@ -33,6 +33,7 @@ class Planner extends Component {
       end: null,
       breakstart: moment().add(6, 'hours'),
       breakend: moment().add(6, 'hours'),
+      isPaidBreak: false,
       fromField: '',
       toField: '',
       km: null,
@@ -112,6 +113,10 @@ handleChangeBreakEnd = event => {
         )
       }
     })
+  }
+
+  handleChangeisPaidBreak = e => {
+    this.setState({isPaidBreak: (e.target.value === "yes")})
   }
 
   getDistance = (origins, destinations, google, actionTrigger = 'NONE') => {
@@ -302,12 +307,12 @@ handleChangeBreakEnd = event => {
             className="planner-datepicker break-end"
           />
           <p style={{width: '130px', textAlign: 'left', margin: '7px auto 2px auto'}}>
-            <input id="timeIsPaid" type="radio" name="isPaid" defaultChecked value="true" />
+            <input id="timeIsPaid" type="radio" name="isPaid" defaultChecked checked={state.isPaidBreak} value="yes" onChange={this.handleChangeisPaidBreak} />
             <label htmlFor="timeIsPaid">Betald tid</label>
           </p>
 
           <p style={{width: '130px', textAlign: 'left', margin: '2px auto'}}>
-            <input id="timeIsNotPaid" type="radio" name="isPaid" value="false" />
+            <input id="timeIsNotPaid" type="radio" name="isPaid" checked={!state.isPaidBreak} value="no" onChange={this.handleChangeisPaidBreak} />
             <label htmlFor="timeIsNotPaid">Obetald tid</label>
           </p>
           <button
