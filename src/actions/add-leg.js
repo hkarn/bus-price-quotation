@@ -20,8 +20,9 @@ export function addLeg (type, payloadIn) {
 }
 
 function addTrip (type, input) {
-  if (input.toField !== '' && input.fromField !== '' && input.end.isValid() && input.start.isValid() && input.response === 'OK') {
+  if (input.toField !== '' && input.fromField !== '' && input.end !== null && input.start !== null && input.end.isValid() && input.start.isValid()) {
     const payload = {
+      type: 'drive',
       start: input.start,
       end: input.end,
       from: input.fromField,
@@ -29,8 +30,7 @@ function addTrip (type, input) {
       km: input.km,
       duration: input.traffic,
       break: input.break45,
-      codriver: input.multidriver,
-      isbreak: false
+      codriver: input.multidriver
     }
     return {
       type: 'ADD_TRIP_' + type,
@@ -45,20 +45,19 @@ function addTrip (type, input) {
 }
 
 function addBreak (type, input) {
-  if (input.breakstart.isValid() && input.breakend.isValid()) {
-    const duration = moment.duration(moment(input.breakend).diff(input.breakstart))
+  if (input.end !== null && input.start !== null && input.start.isValid() && input.end.isValid()) {
+    const duration = moment.duration(moment(input.end).diff(input.start))
     if (duration.asMinutes() > 0) {
       const durationtext = durationToString(duration)
       const durationvalue = duration.asSeconds()
 
       const payload = {
-        start: input.breakstart,
-        end: input.breakend,
-        isbreak: true,
-        duration: {
-          text: durationtext,
-          value: durationvalue
-        }
+        type: 'other',
+        start: input.start,
+        end: input.end,
+        isPaid: input.isPaid,
+        duration: durationvalue,
+        durationtext: durationtext
       }
       return {
         type: 'ADD_TRIP_' + type,

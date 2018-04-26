@@ -47,7 +47,6 @@ class Planner extends Component {
       },
       hasTwoDrivers: false,
       smallGroupDiscount: false,
-      response: null,
       showResult: false,
       searchOpts: {}
     }
@@ -246,7 +245,7 @@ handleChangeBreakEnd = event => {
 
         this.setState({drive: newDrive})
         // Dispatch Action on response if from actionTrigger
-        if (actionTrigger !== 'NONE' && response === 'OK') { props.addLeg(actionTrigger, Object.assign({}, newState)) }
+        if (actionTrigger !== 'NONE' && status === 'OK') { props.addLeg(actionTrigger, Object.assign({}, newDrive)) }
       }
     )
   };
@@ -361,7 +360,7 @@ handleChangeBreakEnd = event => {
           </p>
           <button
             onClick={() =>
-              props.addLeg('BREAK', Object.assign({}, state))
+              props.addLeg('BREAK', Object.assign({}, state.other))
             }
           >
             Lägg till tid i uppdraget <FontAwesomeIcon icon={faAngleRight} />

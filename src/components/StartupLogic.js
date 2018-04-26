@@ -3,8 +3,6 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import {readPrices} from '../actions/'
-import checkIsHoliday from '../functions/holidays-sv'
-import moment from 'moment'
 
 // TODO
 // Fix this implimentation of startup
