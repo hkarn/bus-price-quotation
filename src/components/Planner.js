@@ -38,11 +38,12 @@ class Planner extends Component {
         traffic: null,
         multidriver: false,
         break45: false,
+        empty: false
       },
-      otherAssignment: {
-        breakstart: moment().add(6, 'hours'),
-        breakend: moment().add(6, 'hours'),
-        isPaidBreak: false,
+      other: {
+        start: moment().add(6, 'hours'),
+        end: moment().add(6, 'hours'),
+        isPaid: true
       },
       hasTwoDrivers: false,
       smallGroupDiscount: false,
@@ -73,7 +74,10 @@ class Planner extends Component {
 handleChangeBreakStart = event => {
   const valid = !!moment(event, 'YYYY-MM-DD HH:mm', true).isValid()
   if (valid) {
-    this.setState({ otherAssignment: breakstart: moment(event) })
+    const {...state} = this.state
+    let newOther = state.other
+    newOther = {...newOther, ...{start: moment(event)}}
+    this.setState({ other: newOther })
     document.getElementsByClassName('break-start')[0].firstChild.style.color = 'black'
   } else {
     document.getElementsByClassName('break-start')[0].firstChild.style.color = 'red'
@@ -83,7 +87,10 @@ handleChangeBreakStart = event => {
 handleChangeBreakEnd = event => {
   const valid = !!moment(event, 'YYYY-MM-DD HH:mm', true).isValid()
   if (valid) {
-    this.setState({ breakend: moment(event) })
+    const {...state} = this.state
+    let newOther = state.other
+    newOther = {...newOther, ...{end: moment(event)}}
+    this.setState({ other: newOther })
     document.getElementsByClassName('break-end')[0].firstChild.style.color = 'black'
   } else {
     document.getElementsByClassName('break-end')[0].firstChild.style.color = 'red'
@@ -93,7 +100,19 @@ handleChangeBreakEnd = event => {
   handleChangeStart = event => {
     const valid = !!moment(event, 'YYYY-MM-DD HH:mm', true).isValid()
     if (valid) {
-      this.setState({ start: moment(event) })
+      const {...state} = this.state
+      let newDrive = state.drive
+      newDrive = {...newDrive, ...{start: moment(event)}}
+      this.setState({ drive: newDrive }, () => {
+        const { ...state } = this.state
+        if (state.drive.fromField !== '' && state.drive.toField !== '') {
+          this.getDistance(
+            [state.drive.fromField],
+            [state.drive.toField],
+            window.google
+          )
+        }
+      })
       document.getElementsByClassName('start-time-selector')[0].firstChild.style.color = 'black'
     } else {
       document.getElementsByClassName('start-time-selector')[0].firstChild.style.color = 'red'
@@ -103,7 +122,10 @@ handleChangeBreakEnd = event => {
   handleChangeEnd = event => {
     const valid = !!moment(event, 'YYYY-MM-DD HH:mm', true).isValid()
     if (valid) {
-      this.setState({ end: moment(event) })
+      const {...state} = this.state
+      let newDrive = state.drive
+      newDrive = {...newDrive, ...{end: moment(event)}}
+      this.setState({ drive: newDrive })
       document.getElementsByClassName('end-time-selector')[0].firstChild.style.color = 'black'
     } else {
       document.getElementsByClassName('end-time-selector')[0].firstChild.style.color = 'red'
@@ -111,12 +133,15 @@ handleChangeBreakEnd = event => {
   }
 
   handleTo = value => {
-    this.setState({ toField: value }, () => {
+    const {...state} = this.state
+    let newDrive = state.drive
+    newDrive = {...newDrive, ...{toField: value}}
+    this.setState({ drive: newDrive }, () => {
       const { ...state } = this.state
-      if (state.fromField !== '' && state.toField !== '') {
+      if (state.drive.fromField !== '' && state.drive.toField !== '') {
         this.getDistance(
-          [state.fromField],
-          [state.toField],
+          [state.drive.fromField],
+          [state.drive.toField],
           window.google
         )
       }
@@ -124,12 +149,15 @@ handleChangeBreakEnd = event => {
   }
 
   handleFrom = value => {
-    this.setState({ fromField: value }, () => {
+    const {...state} = this.state
+    let newDrive = state.drive
+    newDrive = {...newDrive, ...{fromField: value}}
+    this.setState({ drive: newDrive }, () => {
       const { ...state } = this.state
-      if (state.fromField !== '' && state.toField !== '') {
+      if (state.drive.fromField !== '' && state.drive.toField !== '') {
         this.getDistance(
-          [state.fromField],
-          [state.toField],
+          [state.drive.fromField],
+          [state.drive.toField],
           window.google
         )
       }
@@ -137,7 +165,10 @@ handleChangeBreakEnd = event => {
   }
 
   handleChangeisPaidBreak = e => {
-    this.setState({isPaidBreak: (e.target.value === "yes")})
+    const { ...state } = this.state
+    const newOther = Object.assign({}, state.other)
+    newOther.isPaid = e.target.value === 'yes'
+    this.setState({other: newOther})
   }
 
   getDistance = (origins, destinations, google, actionTrigger = 'NONE') => {
@@ -153,12 +184,13 @@ handleChangeBreakEnd = event => {
         avoidHighways: false,
         avoidTolls: false,
         drivingOptions: {
-          departureTime: new Date(state.start.toDate()),
+          departureTime: new Date(state.drive.start.toDate()),
           trafficModel: google.maps.TrafficModel.BEST_GUESS
         }
       },
       (response, status) => {
         let newState = state
+        let newDrive = newState.drive
 
         if (status === 'OK' && response.destinationAddresses[0] !== '' && response.originAddresses[0] !== '' && response.rows[0].elements[0].status !== 'ZERO_RESULTS') {
           // We use duration_in_traffic as default if normal time answer is longer we want to use that duration
@@ -181,38 +213,38 @@ handleChangeBreakEnd = event => {
           }
           // Check driving times and breaks
           if (response.rows[0].elements[0].duration_in_traffic.value > 9 * 3600) {
-            newState = {...newState, ...{'multidriver': true}}
+            newDrive = {...newDrive, ...{'multidriver': true}}
           } else {
-            newState = {...newState, ...{'multidriver': false}}
+            newDrive = {...newDrive, ...{'multidriver': false}}
           }
 
           if (response.rows[0].elements[0].duration_in_traffic.value > 4.25 * 3600) {
-            newState = {...newState, ...{'break45': true}}
+            newDrive = {...newDrive, ...{'break45': true}}
             response.rows[0].elements[0].duration_in_traffic.value = response.rows[0].elements[0].duration_in_traffic.value + (45 * 60)
             response.rows[0].elements[0].duration_in_traffic.text = durationToString(response.rows[0].elements[0].duration_in_traffic.value)
           } else {
-            newState = {...newState, ...{'break45': false}}
+            newDrive = {...newDrive, ...{'break45': false}}
           }
 
-          const start = state.start.clone()
-          newState = {...newState,
+          const start = newDrive.start.clone()
+          newDrive = {...newDrive,
             ...{end: start.add(response.rows[0].elements[0].duration_in_traffic.value, 's'),
               traffic: response.rows[0].elements[0].duration_in_traffic,
               km: response.rows[0].elements[0].distance
             }
           }
         } else {
-          newState = {...newState,
+          newDrive = {...newDrive,
             ...{traffic: null,
               km: null
             }
           }
         }
         if (status === 'OK' && response.rows[0].elements[0].distance !== null && response.rows[0].elements[0].duration_in_traffic !== null) {
-          newState = {...newState, ...{'showResult': true}}
+          this.setState({'showResult': true})
         }
 
-        this.setState(newState)
+        this.setState({drive: newDrive})
         // Dispatch Action on response if from actionTrigger
         if (actionTrigger !== 'NONE' && response === 'OK') { props.addLeg(actionTrigger, Object.assign({}, newState)) }
       }
@@ -223,16 +255,13 @@ handleChangeBreakEnd = event => {
     const { ...state } = this.state
     const { ...props } = this.props
 
-    console.log('state: ', state)
-    console.log('props: ', props)
-
     return (
 
       <div className="planner">
         <h1>Planera uppdrag</h1>
         <label htmlFor="start-time">Starttid</label>
         <DateTime
-          value={state.start}
+          value={state.drive.start}
           onChange={this.handleChangeStart}
           className="planner-datepicker start-time-selector"
 
@@ -266,33 +295,38 @@ handleChangeBreakEnd = event => {
           <div className="planner-leg-results">
             <ShowPrelResults
               doesShow={state.showResult}
-              traffic={state.traffic === null ? 'Hittades inte' : state.traffic.text}
-              hasBreak={state.break45}
-              km={state.km === null ? 'Hittades inte' : state.km.text} />
+              traffic={state.drive.traffic === null ? 'Hittades inte' : state.drive.traffic.text}
+              hasBreak={state.drive.break45}
+              km={state.drive.km === null ? 'Hittades inte' : state.drive.km.text} />
           </div>
           <div>
-            <input type="checkbox" id="empty-leg" />
+            <input type="checkbox" id="empty-leg" name="empty-leg" checked={state.drive.empty} onChange={e => {
+              const {...state} = this.state
+              let newDrive = Object.assign({}, state.drive)
+              newDrive = {...newDrive, ...{empty: e.target.checked}}
+              this.setState({drive: newDrive})
+            }} />
             <label htmlFor="empty-leg">Tomkörning</label>
           </div>
           <div className="planner-controls">
 
             <label htmlFor="end-time">Sluttid</label>
             <DateTime
-              value={state.end}
+              value={state.drive.end}
               onChange={this.handleChangeEnd}
               className="planner-datepicker end-time-selector"
               id="end-time"
             />
-            <p className={'planner-controls-time ' + (state.multidriver ? 'red' : '')}>
-              {state.end !== null && state.end.isValid() ? 'Körtid: ' + moment.duration(state.end.diff(state.start)).asHours().toFixed(2) + ' timmar' : ''}
-              {(state.end !== null && state.end.isValid()) && state.break45 ? ' (inkluderar 45 min rast)' : ''}
-              {(state.end !== null && state.end.isValid()) && state.multidriver ? ' 2 förare krävs!' : ''}
+            <p className={'planner-controls-time ' + (state.drive.multidriver ? 'red' : '')}>
+              {state.drive.end !== null && state.drive.end.isValid() ? 'Körtid: ' + moment.duration(state.drive.end.diff(state.drive.start)).asHours().toFixed(2) + ' timmar' : ''}
+              {(state.drive.end !== null && state.drive.end.isValid()) && state.drive.break45 ? ' (inkluderar 45 min rast)' : ''}
+              {(state.drive.end !== null && state.drive.end.isValid()) && state.drive.multidriver ? ' 2 förare krävs!' : ''}
             </p>
             <button
               onClick={() =>
                 this.getDistance(
-                  [state.fromField],
-                  [state.toField],
+                  [state.drive.fromField],
+                  [state.drive.toField],
                   window.google,
                   'TRIP'
                 )
@@ -306,23 +340,23 @@ handleChangeBreakEnd = event => {
           <h3>Övrig tid (betald eller obetald)</h3>
           <label htmlFor="break-start">Starttid</label>
           <DateTime
-            value={state.breakstart}
+            value={state.other.start}
             onChange={this.handleChangeBreakStart}
             className="planner-datepicker break-start"
           />
           <label htmlFor="break-end">Sluttid</label>
           <DateTime
-            value={state.breakend}
+            value={state.other.end}
             onChange={this.handleChangeBreakEnd}
             className="planner-datepicker break-end"
           />
           <p style={{width: '130px', textAlign: 'left', margin: '7px auto 2px auto'}}>
-            <input id="timeIsPaid" type="radio" name="isPaid" defaultChecked checked={state.isPaidBreak} value="yes" onChange={this.handleChangeisPaidBreak} />
+            <input id="timeIsPaid" type="radio" name="isPaid" checked={state.other.isPaid} value="yes" onChange={this.handleChangeisPaidBreak} />
             <label htmlFor="timeIsPaid">Betald tid</label>
           </p>
 
           <p style={{width: '130px', textAlign: 'left', margin: '2px auto'}}>
-            <input id="timeIsNotPaid" type="radio" name="isPaid" checked={!state.isPaidBreak} value="no" onChange={this.handleChangeisPaidBreak} />
+            <input id="timeIsNotPaid" type="radio" name="isPaid" checked={!state.other.isPaid} value="no" onChange={this.handleChangeisPaidBreak} />
             <label htmlFor="timeIsNotPaid">Obetald tid</label>
           </p>
           <button
@@ -336,11 +370,11 @@ handleChangeBreakEnd = event => {
         <div className="planner-options">
           <h3 style={{marginBottom: '10px'}}>Inställningar</h3>
           <p style={{width: '200px', textAlign: 'left', margin: '2px auto'}}>
-            <input type="checkbox" id="less-then-30" />
+            <input type="checkbox" id="less-then-30" name="smallGroupDiscount" checked={state.smallGroupDiscount} onChange={e => { this.setState({smallGroupDiscount: e.target.checked}) }} />
             <label htmlFor="less-then-30">Under 30 personer</label>
           </p>
           <p style={{width: '200px', textAlign: 'left', margin: '2px auto'}}>
-            <input type="checkbox" id="two-drivers" />
+            <input type="checkbox" id="two-drivers" name="hasTwoDrivers" checked={state.hasTwoDrivers} onChange={e => { this.setState({hasTwoDrivers: e.target.checked}) }} />
             <label htmlFor="two-drivers">Två förare</label>
           </p>
         </div>
