@@ -6,7 +6,7 @@ import PropTypes from 'prop-types'
 
 import '../styles/component-styles/PlacesAutoComplete.css'
 
-class Planner extends Component {
+class SelectAddress extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -122,8 +122,8 @@ class Planner extends Component {
   }
 }
 
-Planner.propTypes = {
+SelectAddress.propTypes = {
   handler: PropTypes.func
 }
 
-export default Planner
+export default SelectAddress

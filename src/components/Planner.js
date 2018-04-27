@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-
+import PropTypes from 'prop-types'
 import ReactDependentScript from 'react-dependent-script'
 import SelectAddress from './SelectAddress'
 import DateTime from 'react-datetime'
@@ -38,12 +38,14 @@ class Planner extends Component {
         traffic: null,
         multidriver: false,
         break45: false,
-        empty: false
+        empty: false,
+        index: props.index
       },
       other: {
         start: moment().add(6, 'hours'),
         end: moment().add(6, 'hours'),
-        isPaid: true
+        isPaid: true,
+        index: props.index
       },
       hasTwoDrivers: false,
       smallGroupDiscount: false,
@@ -64,6 +66,20 @@ class Planner extends Component {
         clearInterval(this.setSearchOptsTimer)
       }
     }, 650)
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const {...state} = this.state
+    const newDrive = state.drive
+    const newOther = state.other
+    const tmp = nextProps.index.toString() + moment().format('x').toString()
+    newDrive.index = tmp
+    newOther.index = tmp
+    this.setState(prevState => {
+      prevState.drive = newDrive
+      prevState.other = newOther
+      return prevState
+    })
   }
 
   componentWillUnmount () {
@@ -245,7 +261,9 @@ handleChangeBreakEnd = event => {
 
         this.setState({drive: newDrive})
         // Dispatch Action on response if from actionTrigger
-        if (actionTrigger !== 'NONE' && status === 'OK') { props.addLeg(actionTrigger, Object.assign({}, newDrive)) }
+        if (actionTrigger !== 'NONE' && status === 'OK') {
+          props.addLeg(actionTrigger, Object.assign({}, newDrive))
+        }
       }
     )
   };
@@ -383,8 +401,18 @@ handleChangeBreakEnd = event => {
   }
 }
 
+Planner.propTypes = {
+  index: PropTypes.number
+}
+
 const mapDispatchToProps = dispatch => bindActionCreators({
   addLeg
 }, dispatch)
 
-export default connect(null, mapDispatchToProps)(Planner)
+const mapStateToProps = (state) => {
+  return {
+    index: state.trips.length
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Planner)

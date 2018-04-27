@@ -1,10 +1,14 @@
 import React, { Component } from 'react'
+import _ from 'underscore'
 import moment from 'moment'
 import 'moment/locale/sv'
+
+moment.locale('sv')
 
 class LegList extends Component {
   render () {
     const {...props} = this.props
+    console.log(props)
     if (props.trips.length < 1) {
       return (
         <ul><li>
@@ -13,53 +17,37 @@ class LegList extends Component {
       )
     }
 
-    const listTrips = props.trips.map((trip, index, list) => {
-      const answer = [{
-        start: null,
-        end: null,
-        from: null,
-        to: null,
-        km: null,
-        duration: null,
-        break: null,
-        codriver: null,
-        isbreak: null
-      }]
+    const sortedTrips = _.sortBy(props.trips, 'start')
+    const listTrips = sortedTrips.map(trip => {
+      let result = null
+      if (trip.type === 'drive') {
+        result = (<li key={trip.index}>
+          <h1>Körning {trip.start.calendar().toLowerCase()}</h1>
+          <p>{trip.start.format('HH:mm ddd D/M')} {trip.from}</p>
+          <p>-></p>
+          <p>{trip.end.format('HH:mm ddd D/M')} {trip.to}</p>
+          <p>
+            Arbetstid: {trip.duration.text}
+            {trip.break ? ' (inkl 45 min rast)' : null}
+          </p>
 
-      if (list[index - 1] !== undefined && trip.end.isValid() && trip.start.isValid()) {
-        const duration = moment.duration(moment(trip.end).diff(trip.start))
-        if (duration.asMinutes() > 5) {
-          answer[0].start = list[index - 1].end
-          answer[0].end = trip.start
-          answer[0].km = 0
-          answer[0].duration = moment.duration(moment(answer[0].end).diff(answer[0].start))
-          answer[0].isbreak = false
-          answer[0].from = 'waiting'
-          answer[0].to = 'waiting'
-        }
+        </li>)
       }
-      /*
-
-      if (trip.isbreak) {
-        return ;
-      } else {
-        return ;
+      if (trip.type === 'other') {
+        const isPaidString1 = trip.isPaid ? 'betald' : 'obetald'
+        const isPaidString2 = trip.isPaid ? 'Arbets' : 'Övrig '
+        result = (<li key={trip.index}>
+          <h1>Övrig {isPaidString1} tid {trip.start.calendar().toLowerCase()}</h1>
+          <p>{trip.start.format('HH:mm ddd D/M')}</p>
+          <p>-></p>
+          <p>{trip.end.format('HH:mm ddd D/M')}</p>
+          <p>
+            {isPaidString2}tid: {trip.duration.text}
+          </p>
+        </li>)
       }
-    */ }
-
-    )
-    /*
-    start: input.start,
-    end: input.end,
-    from: input.fromField,
-    to: input.toField,
-    km: input.km,
-    duration: input.traffic,
-    break: input.break45,
-    codriver: input.multidriver,
-    isbreak: false,
-*/
-    // if (this.props.isbreak)
+      return result
+    })
 
     return (
       <ul>
