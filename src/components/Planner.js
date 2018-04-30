@@ -8,7 +8,6 @@ import DateTime from 'react-datetime'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faAngleRight from '@fortawesome/fontawesome-free-solid/faAngleRight'
 import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
-
 import config from '../config/config.js'
 
 import {addLeg} from '../actions'
@@ -68,11 +67,11 @@ class Planner extends Component {
     }, 650)
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps (nextProps) {
     const {...state} = this.state
     const newDrive = state.drive
     const newOther = state.other
-    const tmp = nextProps.index.toString() + moment().format('x').toString()
+    const tmp = Number(nextProps.index.toString() + moment().format('x').toString())
     newDrive.index = tmp
     newOther.index = tmp
     this.setState(prevState => {
@@ -87,10 +86,12 @@ class Planner extends Component {
   }
 
 handleChangeBreakStart = event => {
-  const valid = !!moment(event, 'YYYY-MM-DD HH:mm', true).isValid()
-  if (valid) {
+  if (moment(event, 'YYYY-MM-DD HH:mm', true).isValid()) {
     const {...state} = this.state
     let newOther = state.other
+    if (moment(event).isAfter(state.other.end)) {
+      newOther = {...newOther, ...{end: moment(event)}}
+    }
     newOther = {...newOther, ...{start: moment(event)}}
     this.setState({ other: newOther })
     document.getElementsByClassName('break-start')[0].firstChild.style.color = 'black'
@@ -100,8 +101,7 @@ handleChangeBreakStart = event => {
 }
 
 handleChangeBreakEnd = event => {
-  const valid = !!moment(event, 'YYYY-MM-DD HH:mm', true).isValid()
-  if (valid) {
+  if (moment(event, 'YYYY-MM-DD HH:mm', true).isValid()) {
     const {...state} = this.state
     let newOther = state.other
     newOther = {...newOther, ...{end: moment(event)}}
@@ -204,7 +204,7 @@ handleChangeBreakEnd = event => {
         }
       },
       (response, status) => {
-        let newState = state
+        const newState = state
         let newDrive = newState.drive
 
         if (status === 'OK' && response.destinationAddresses[0] !== '' && response.originAddresses[0] !== '' && response.rows[0].elements[0].status !== 'ZERO_RESULTS') {

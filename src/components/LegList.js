@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
 import _ from 'underscore'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+import { removeLeg } from '../actions'
 import moment from 'moment'
 import 'moment/locale/sv'
 
@@ -8,7 +11,6 @@ moment.locale('sv')
 class LegList extends Component {
   render () {
     const {...props} = this.props
-    console.log(props)
     if (props.trips.length < 1) {
       return (
         <ul><li>
@@ -30,7 +32,7 @@ class LegList extends Component {
             Arbetstid: {trip.duration.text}
             {trip.break ? ' (inkl 45 min rast)' : null}
           </p>
-
+          <button onClick={() => { props.removeLeg(trip.index) }}>Ta bort från uppdrag</button>
         </li>)
       }
       if (trip.type === 'other') {
@@ -44,6 +46,7 @@ class LegList extends Component {
           <p>
             {isPaidString2}tid: {trip.duration.text}
           </p>
+          <button onClick={() => { props.removeLeg(trip.index) }}>Ta bort från uppdrag</button>
         </li>)
       }
       return result
@@ -57,4 +60,8 @@ class LegList extends Component {
   }
 }
 
-export default LegList
+const mapDispatchToProps = dispatch => bindActionCreators({
+  removeLeg
+}, dispatch)
+
+export default connect(null, mapDispatchToProps)(LegList)

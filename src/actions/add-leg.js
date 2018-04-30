@@ -31,7 +31,8 @@ function addTrip (type, input) {
       duration: input.traffic,
       break: input.break45,
       codriver: input.multidriver,
-      index: input.index
+      index: input.index,
+      empty: input.empty
     }
     return {
       type: 'ADD_TRIP_' + type,
