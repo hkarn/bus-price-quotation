@@ -48,7 +48,10 @@ class ResultViewer extends Component {
       discount: 0,
       // end form fields
       total: 0,
-      totalvat: 0
+      totalvat: 0,
+      hasTwoDrivers: false,
+      smallGroupDiscount: false,
+      baseDiscount: 0
     }
   }
 
@@ -207,7 +210,7 @@ class ResultViewer extends Component {
   handleInputChange = (event) => {
     const target = event.target
     const name = target.name
-    const value = target.value
+    const value = isNaN(Number(target.value)) || target.value < 0 ? 0 : Number(target.value)
     const prices = this.getPrices()
 
     if (name === 'ob0total') {
@@ -219,9 +222,9 @@ class ResultViewer extends Component {
     } else if (name === 'ob3total') {
       this.setState({[name]: value, ob3amount: value / prices.ob3}, () => this.reCalculate())
     } else if (name === 'kmTotal') {
-      this.setState({[name]: value, kmTotal: value / prices.km}, () => this.reCalculate())
+      this.setState({[name]: value, kmField: value / prices.km}, () => this.reCalculate())
     } else if (name === 'kmEmptyTotal') {
-      this.setState({[name]: value, kmEmptyTotal: value / prices.kmEmpty}, () => this.reCalculate())
+      this.setState({[name]: value, kmEmptyField: value / prices.kmEmpty}, () => this.reCalculate())
     } else {
       this.setState({[name]: value}, () => this.reCalculate())
     }
@@ -230,27 +233,39 @@ class ResultViewer extends Component {
   reCalculate = () => {
     const {...state} = this.state
     const prices = this.getPrices()
-
     const newState = {
-      ob0amount: Math.round((state.ob0amount + 0.00001) * 100) / 100,
-      ob1amount: Math.round((state.ob1amount + 0.00001) * 100) / 100,
-      ob2amount: Math.round((state.ob2amount + 0.00001) * 100) / 100,
-      ob3amount: Math.round((state.ob3amount + 0.00001) * 100) / 100,
-      kmField: Math.round((state.kmField + 0.00001) * 100) / 100,
-      kmEmptyField: Math.round((state.kmEmptyField + 0.00001) * 100) / 100,
-      ob0total: Math.round(((state.ob0amount * prices.ob0) + 0.00001) * 100) / 100,
-      ob1total: Math.round(((state.ob1amount * prices.ob1) + 0.00001) * 100) / 100,
-      ob2total: Math.round(((state.ob2amount * prices.ob2) + 0.00001) * 100) / 100,
-      ob3total: Math.round(((state.ob3amount * prices.ob3) + 0.00001) * 100) / 100,
-      kmTotal: Math.round(((state.kmField * prices.km) + 0.00001) * 100) / 100,
-      kmEmptyTotal: Math.round(((state.kmEmptyField * prices.kmEmpty) + 0.00001) * 100) / 100
+      ob0amount: +state.ob0amount.toFixed(2),
+      ob1amount: +state.ob1amount.toFixed(2),
+      ob2amount: +state.ob2amount.toFixed(2),
+      ob3amount: +state.ob3amount.toFixed(2),
+      kmField: +state.kmField.toFixed(1),
+      kmEmptyField: +state.kmEmptyField.toFixed(1),
+      ob0total: (state.ob0amount * prices.ob0).toFixed(0),
+      ob1total: (state.ob1amount * prices.ob1).toFixed(0),
+      ob2total: (state.ob2amount * prices.ob2).toFixed(0),
+      ob3total: (state.ob3amount * prices.ob3).toFixed(0),
+      kmTotal: (state.kmField * prices.km).toFixed(0),
+      kmEmptyTotal: (state.kmEmptyField * prices.kmEmpty).toFixed(0)
     }
 
+    const driverMultipler = state.hasTwoDrivers ? 2 : 1
+    console.log(driverMultipler)
+    const baseDiscount = state.smallGroupDiscount
+      ? ((newState.ob0total * driverMultipler) +
+      (newState.ob1total * driverMultipler) +
+      (newState.ob2total * driverMultipler) +
+      (newState.ob3total * driverMultipler) +
+      +newState.kmTotal +
+      +newState.kmEmptyTotal) * 0.1
+      : 0
+
+    newState.baseDiscount = baseDiscount
+
     newState.total = (
-      +newState.ob0total +
-      +newState.ob1total +
-      +newState.ob2total +
-      +newState.ob3total +
+      (newState.ob0total * driverMultipler) +
+      (newState.ob1total * driverMultipler) +
+      (newState.ob2total * driverMultipler) +
+      (newState.ob3total * driverMultipler) +
       +newState.kmTotal +
       +newState.kmEmptyTotal +
       +state.approach +
@@ -259,16 +274,47 @@ class ResultViewer extends Component {
       +state.hotel +
       +state.food +
       +state.ferry +
-      +state.tax
+      +state.tax -
+      +state.discount
     ).toFixed(0)
 
+    const totalafterdiscount = []
+
+    totalafterdiscount[0] = Number(newState.ob0total * driverMultipler)
+    totalafterdiscount[1] = Number(newState.ob1total * driverMultipler)
+    totalafterdiscount[2] = Number(newState.ob2total * driverMultipler)
+    totalafterdiscount[3] = Number(newState.ob3total * driverMultipler)
+    totalafterdiscount[4] = Number(newState.kmTotal)
+    totalafterdiscount[5] = Number(newState.kmEmptyTotal)
+
+    let remainingDiscount = Number(state.discount) + Number(baseDiscount)
+
+    const mappedafterdiscount = totalafterdiscount.map(item => {
+      if (Number(item) >= Number(remainingDiscount)) {
+        const newItem = item - remainingDiscount
+        remainingDiscount = 0
+        return newItem
+      } else {
+        const newItem = 0
+        remainingDiscount = remainingDiscount - item
+        return newItem
+      }
+    })
+
+    if (remainingDiscount > 0) {
+      // silently reduced discount to maximum possible (discount only makes sense on milage and hours)
+      const newDiscount = state.discount - remainingDiscount
+      this.setState({discount: newDiscount}, () => this.reCalculate())
+      return
+    }
+
     newState.totalvat = (
-      (newState.ob0total * this.vat.hours) +
-      (newState.ob1total * this.vat.hours) +
-      (newState.ob2total * this.vat.hours) +
-      (newState.ob3total * this.vat.hours) +
-      (newState.kmTotal * this.vat.km) +
-      (newState.kmEmptyTotal * this.vat.km) +
+      (mappedafterdiscount[0] * this.vat.hours) +
+      (mappedafterdiscount[1] * this.vat.hours) +
+      (mappedafterdiscount[2] * this.vat.hours) +
+      (mappedafterdiscount[3] * this.vat.hours) +
+      (mappedafterdiscount[4] * this.vat.km) +
+      (mappedafterdiscount[5] * this.vat.km) +
       (state.approach * this.vat.approach) +
       (state.cleaning * this.vat.cleaning) +
       (state.allowance * this.vat.allowance) +
@@ -281,6 +327,24 @@ class ResultViewer extends Component {
     this.setState({...state, ...newState})
   }
 
+  clearZeroFieldValue = (event) => {
+    const target = event.target
+    const value = target.value
+    const name = target.name
+    if (+value === 0) {
+      this.setState({[name]: ''})
+    }
+  }
+
+  setZeroOnClerField = (event) => {
+    const target = event.target
+    const value = target.value
+    const name = target.name
+    if (value === '') {
+      this.setState({[name]: 0})
+    }
+  }
+
   render () {
     const {...props} = this.props
     const {...state} = this.state
@@ -290,6 +354,15 @@ class ResultViewer extends Component {
     return (
       <div className="result-box">
         <h1>Resultat</h1>
+        <div className="result-options">
+          <p style={{textAlign: 'center'}}>
+            <input type="checkbox" id="less-then-30" name="smallGroupDiscount" checked={state.smallGroupDiscount} onChange={e => { this.setState({smallGroupDiscount: e.target.checked}, () => this.reCalculate()) }} />
+            <label htmlFor="less-then-30">Under 30 personer</label>
+
+            <input type="checkbox" id="two-drivers" name="hasTwoDrivers" checked={state.hasTwoDrivers} onChange={e => { this.setState({hasTwoDrivers: e.target.checked}, () => this.reCalculate()) }} />
+            <label style={{marginLeft: '20px'}} htmlFor="two-drivers">Två förare</label>
+          </p>
+        </div>
         <div className="result-box-routes">
           <LegList trips={props.trips} />
         </div>
@@ -307,84 +380,88 @@ class ResultViewer extends Component {
             <tr>
               <th>Km</th>
               <td>{prices.km}</td>
-              <td>6%</td>
-              <td><input name="kmField" type="number" value={state.kmField} onChange={this.handleInputChange} /></td>
-              <td><input name="kmTotal" type="number" value={state.kmTotal} onChange={this.handleInputChange} /> kr</td>
+              <td>{this.vat.km * 100}%</td>
+              <td><input name="kmField" type="number" value={state.kmField} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /></td>
+              <td><input name="kmTotal" type="number" value={state.kmTotal} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th>Km (tom)</th>
               <td>{prices.kmEmpty}</td>
-              <td>6%</td>
-              <td><input name="kmEmptyField" type="number" value={state.kmEmptyField} onChange={this.handleInputChange} /></td>
-              <td><input name="kmEmptyTotal" type="number" value={state.kmEmptyTotal} onChange={this.handleInputChange} /> kr</td>
+              <td>{this.vat.km * 100}%</td>
+              <td><input name="kmEmptyField" type="number" value={state.kmEmptyField} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /></td>
+              <td><input name="kmEmptyTotal" type="number" value={state.kmEmptyTotal} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th>Tim OB0</th>
               <td>{prices.ob0}</td>
-              <td>6%</td>
-              <td><input name="ob0amount" type="number" value={state.ob0amount} onChange={this.handleInputChange} /></td>
-              <td><input name="ob0total" type="number" value={state.ob0total} onChange={this.handleInputChange} /> kr</td>
+              <td>{this.vat.hours * 100}%</td>
+              <td><input name="ob0amount" type="number" value={state.ob0amount} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /></td>
+              <td><input name="ob0total" type="number" value={state.ob0total} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th>Tim OB1</th>
               <td>{prices.ob1}</td>
-              <td>6%</td>
-              <td><input name="ob1amount" type="number" value={state.ob1amount} onChange={this.handleInputChange} /></td>
-              <td><input name="ob1total" type="number" value={state.ob1total} onChange={this.handleInputChange} /> kr</td>
+              <td>{this.vat.hours * 100}%</td>
+              <td><input name="ob1amount" type="number" value={state.ob1amount} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /></td>
+              <td><input name="ob1total" type="number" value={state.ob1total} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th>Tim OB2</th>
               <td>{prices.ob2}</td>
-              <td>6%</td>
-              <td><input name="ob2amount" type="number" value={state.ob2amount} onChange={this.handleInputChange} /></td>
-              <td><input name="ob2total" type="number" value={state.ob2total} onChange={this.handleInputChange} /> kr</td>
+              <td>{this.vat.hours * 100}%</td>
+              <td><input name="ob2amount" type="number" value={state.ob2amount} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /></td>
+              <td><input name="ob2total" type="number" value={state.ob2total} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th>Tim OB3</th>
               <td>{prices.ob3}</td>
-              <td>6%</td>
-              <td><input name="ob3amount" type="number" value={state.ob3amount} onChange={this.handleInputChange} /></td>
-              <td><input name="ob3total" type="number" value={state.ob3total} onChange={this.handleInputChange} /> kr</td>
+              <td>{this.vat.hours * 100}%</td>
+              <td><input name="ob3amount" type="number" value={state.ob3amount} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /></td>
+              <td><input name="ob3total" type="number" value={state.ob3total} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th colSpan="2">Framkörning</th>
-              <td colSpan="2">6%</td>
-              <td><input name="approach" type="number" value={state.approach} onChange={this.handleInputChange} /> kr</td>
+              <td colSpan="2">{this.vat.approach * 100}%</td>
+              <td><input name="approach" type="number" value={state.approach} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th colSpan="2">Städning</th>
-              <td colSpan="2">6%</td>
-              <td><input name="cleaning" type="number" value={state.cleaning} onChange={this.handleInputChange} /> kr</td>
+              <td colSpan="2">{this.vat.cleaning * 100}%</td>
+              <td><input name="cleaning" type="number" value={state.cleaning} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th colSpan="2">Traktamente</th>
-              <td colSpan="2">25%</td>
-              <td><input name="allowance" type="number" value={state.allowance} onChange={this.handleInputChange} /> kr</td>
+              <td colSpan="2">{this.vat.allowance * 100}%</td>
+              <td><input name="allowance" type="number" value={state.allowance} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th colSpan="2">Hotel</th>
-              <td colSpan="2">25%</td>
-              <td><input name="hotel" type="number" value={state.hotel} onChange={this.handleInputChange} /> kr</td>
+              <td colSpan="2">{this.vat.hotel * 100}%</td>
+              <td><input name="hotel" type="number" value={state.hotel} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th colSpan="2">Måltider</th>
-              <td colSpan="2">12%</td>
-              <td><input name="food" type="number" value={state.food} onChange={this.handleInputChange} /> kr</td>
+              <td colSpan="2">{this.vat.food * 100}%</td>
+              <td><input name="food" type="number" value={state.food} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th colSpan="2">Färjor</th>
-              <td colSpan="2">6%</td>
-              <td><input name="ferry" type="number" value={state.ferry} onChange={this.handleInputChange} /> kr</td>
+              <td colSpan="2">{this.vat.ferry * 100}%</td>
+              <td><input name="ferry" type="number" value={state.ferry} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th colSpan="2">Vägskatter</th>
-              <td colSpan="2">25%</td>
-              <td><input name="tax" type="number" value={state.tax} onChange={this.handleInputChange} /> kr</td>
+              <td colSpan="2">{this.vat.tax * 100}%</td>
+              <td><input name="tax" type="number" value={state.tax} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
-              <th colSpan="4">Rabatt (exkl moms)</th>
-              <td><input name="discount" type="number" value={state.discount} onChange={this.handleInputChange} /> kr</td>
+              <th colSpan="4">Manuell rabatt (exkl moms)</th>
+              <td><input name="discount" type="number" value={state.discount} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
+            {(state.baseDiscount !== 0) ? (<tr>
+              <th colSpan="4">Rabatt (liten grupp)</th>
+              <td>{state.baseDiscount.toFixed(0)} kr</td>
+            </tr>) : null}
             <tr>
               <th colSpan="4">Totalt</th>
               <td>{(+state.total).toFixed(0)} kr</td>

@@ -46,8 +46,6 @@ class Planner extends Component {
         isPaid: true,
         index: props.index
       },
-      hasTwoDrivers: false,
-      smallGroupDiscount: false,
       showResult: false,
       searchOpts: {}
     }
@@ -383,17 +381,6 @@ handleChangeBreakEnd = event => {
           >
             Lägg till tid i uppdraget <FontAwesomeIcon icon={faAngleRight} />
           </button>
-        </div>
-        <div className="planner-options">
-          <h3 style={{marginBottom: '10px'}}>Inställningar</h3>
-          <p style={{width: '200px', textAlign: 'left', margin: '2px auto'}}>
-            <input type="checkbox" id="less-then-30" name="smallGroupDiscount" checked={state.smallGroupDiscount} onChange={e => { this.setState({smallGroupDiscount: e.target.checked}) }} />
-            <label htmlFor="less-then-30">Under 30 personer</label>
-          </p>
-          <p style={{width: '200px', textAlign: 'left', margin: '2px auto'}}>
-            <input type="checkbox" id="two-drivers" name="hasTwoDrivers" checked={state.hasTwoDrivers} onChange={e => { this.setState({hasTwoDrivers: e.target.checked}) }} />
-            <label htmlFor="two-drivers">Två förare</label>
-          </p>
         </div>
       </div>
 
