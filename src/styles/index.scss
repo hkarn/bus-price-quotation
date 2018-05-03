@@ -104,3 +104,16 @@ input[type=radio]:checked + label::before {
   font-weight: 400;
   content: "\f192";
 }
+
+@media print
+{    
+    .no-print  {
+        display: none !important;
+    }
+    .print-clean {
+      border: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      background: transparent !important;
+    }
+}

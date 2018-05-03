@@ -8,11 +8,11 @@ import '../../styles/container-styles/home.css'
 
 const Home = props => (
   <div className="price-counter-page">
-    <div className="left">
+    <div className="left print-clean">
       <Planner />
     </div>
 
-    <div className="right">
+    <div className="right print-clean">
 
       <ResultViewer />
     </div>

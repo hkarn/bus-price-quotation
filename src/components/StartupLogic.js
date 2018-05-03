@@ -15,7 +15,7 @@ class StartupLogic extends Component {
 
   render () {
     return (
-      <div className="startuplogic" />
+      <div className="startuplogic no-print" />
     )
   }
 }

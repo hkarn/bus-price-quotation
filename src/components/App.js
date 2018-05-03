@@ -15,7 +15,7 @@ class App extends Component {
     return (
       <div className="application">
         <StartupLogic />
-        <header className="main-header">
+        <header className="main-header no-print">
           <nav>
             <ul>
               <li>

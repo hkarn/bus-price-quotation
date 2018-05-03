@@ -461,12 +461,12 @@ class ResultViewer extends Component {
               <td>{state.baseDiscount.toFixed(0)} kr</td>
             </tr>) : null}
             <tr>
-              <th colSpan="4">Totalt</th>
-              <td>{(+state.total).toFixed(0)} kr</td>
+              <th colSpan="4" style={{fontWeight: 'bold', fontSize: '1.21em'}}>Totalt</th>
+              <td style={{fontWeight: 'bold', fontSize: '1.2em'}}>{(+state.total).toFixed(0)} kr</td>
             </tr>
             <tr>
-              <th colSpan="4">inkl. moms</th>
-              <td>{(+state.total + +state.totalvat).toFixed(0)} kr</td>
+              <th colSpan="4" style={{fontWeight: 'bold', fontSize: '1.1em'}}>inkl. moms</th>
+              <td style={{fontWeight: 'bold', fontSize: '1.1em'}}>{(+state.total + +state.totalvat).toFixed(0)} kr</td>
             </tr>
           </tbody>
         </table>

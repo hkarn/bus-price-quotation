@@ -47,7 +47,9 @@ class Planner extends Component {
         index: props.index
       },
       showResult: false,
-      searchOpts: {}
+      searchOpts: {},
+      resetFrom: false,
+      resetTo: false
     }
     this.setSearchOptsTimer = null
   }
@@ -262,6 +264,19 @@ handleChangeBreakEnd = event => {
         if (actionTrigger !== 'NONE' && status === 'OK') {
           props.addLeg(actionTrigger, Object.assign({}, newDrive))
           this.setState(prevState => { prevState.other.start = newDrive.end.clone(); prevState.other.end = newDrive.end.clone(); return {other: prevState.other} })
+          this.setState(prevState => {
+            prevState.drive.start = newDrive.end.clone()
+            prevState.drive.end = null
+            prevState.drive.fromField = destinations[0]
+            prevState.drive.toField = ''
+            prevState.drive.km = null
+            prevState.drive.traffic = null
+            prevState.drive.multidriver = false
+            prevState.drive.break45 = false
+            prevState.drive.empty = false
+            return {drive: prevState.drive}
+          })
+          this.setState({'showResult': false, resetFrom: destinations[0], resetTo: ''}, () => {this.setState({resetFrom: false, resetTo: false}) })
         }
       }
     )
@@ -273,7 +288,7 @@ handleChangeBreakEnd = event => {
 
     return (
 
-      <div className="planner">
+      <div className="planner no-print">
         <h1>Planera uppdrag</h1>
         <label htmlFor="start-time">Starttid</label>
         <DateTime
@@ -297,12 +312,14 @@ handleChangeBreakEnd = event => {
           <div className="planner-locations">
             <label htmlFor="from-address">Från adress</label>
             <SelectAddress
+              reset={state.resetFrom}
               handler={this.handleFrom}
               id="from-address"
               tab_index={1}
               options={state.searchOpts} />
             <label htmlFor="to-address">Till adress</label>
             <SelectAddress
+              reset={state.resetTo}
               handler={this.handleTo}
               id="to-address"
               tab_index={2}

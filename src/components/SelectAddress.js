@@ -15,6 +15,15 @@ class SelectAddress extends Component {
     }
   }
 
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.reset !== false) {
+      this.setState ({
+        address: nextProps.reset,
+      errorMessage: ''})
+
+    }
+  }
+
   handleChange = address => {
     this.setState({
       address,
@@ -123,7 +132,11 @@ class SelectAddress extends Component {
 }
 
 SelectAddress.propTypes = {
-  handler: PropTypes.func
+  handler: PropTypes.func,
+  reset: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.bool
+  ]),
 }
 
 export default SelectAddress
