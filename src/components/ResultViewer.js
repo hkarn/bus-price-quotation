@@ -7,6 +7,8 @@ import moment from 'moment'
 import 'moment/locale/sv'
 import PropTypes from 'prop-types'
 
+import '../styles/component-styles/ResultView.css'
+
 moment.locale('sv')
 
 class ResultViewer extends Component {
@@ -234,12 +236,12 @@ class ResultViewer extends Component {
     const {...state} = this.state
     const prices = this.getPrices()
     const newState = {
-      ob0amount: +state.ob0amount.toFixed(2),
-      ob1amount: +state.ob1amount.toFixed(2),
-      ob2amount: +state.ob2amount.toFixed(2),
-      ob3amount: +state.ob3amount.toFixed(2),
-      kmField: +state.kmField.toFixed(1),
-      kmEmptyField: +state.kmEmptyField.toFixed(1),
+      ob0amount: (state.ob0amount * 1).toFixed(2),
+      ob1amount: (state.ob1amount * 1).toFixed(2),
+      ob2amount: (state.ob2amount * 1).toFixed(2),
+      ob3amount: (state.ob3amount * 1).toFixed(2),
+      kmField: (state.kmField * 1).toFixed(1),
+      kmEmptyField: (state.kmEmptyField * 1).toFixed(1),
       ob0total: (state.ob0amount * prices.ob0).toFixed(0),
       ob1total: (state.ob1amount * prices.ob1).toFixed(0),
       ob2total: (state.ob2amount * prices.ob2).toFixed(0),
@@ -249,7 +251,6 @@ class ResultViewer extends Component {
     }
 
     const driverMultipler = state.hasTwoDrivers ? 2 : 1
-    console.log(driverMultipler)
     const baseDiscount = state.smallGroupDiscount
       ? ((newState.ob0total * driverMultipler) +
       (newState.ob1total * driverMultipler) +
@@ -363,9 +364,6 @@ class ResultViewer extends Component {
             <label style={{marginLeft: '20px'}} htmlFor="two-drivers">Två förare</label>
           </p>
         </div>
-        <div className="result-box-routes">
-          <LegList trips={props.trips} />
-        </div>
         <table className="result-box-table">
           <thead>
             <tr>
@@ -382,84 +380,84 @@ class ResultViewer extends Component {
               <td>{prices.km}</td>
               <td>{this.vat.km * 100}%</td>
               <td><input name="kmField" type="number" value={state.kmField} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /></td>
-              <td><input name="kmTotal" type="number" value={state.kmTotal} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
+              <td><input name="kmTotal" className="nospinner" type="number" value={state.kmTotal} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th>Km (tom)</th>
               <td>{prices.kmEmpty}</td>
               <td>{this.vat.km * 100}%</td>
               <td><input name="kmEmptyField" type="number" value={state.kmEmptyField} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /></td>
-              <td><input name="kmEmptyTotal" type="number" value={state.kmEmptyTotal} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
+              <td><input name="kmEmptyTotal" className="nospinner" type="number" value={state.kmEmptyTotal} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th>Tim OB0</th>
               <td>{prices.ob0}</td>
               <td>{this.vat.hours * 100}%</td>
               <td><input name="ob0amount" type="number" value={state.ob0amount} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /></td>
-              <td><input name="ob0total" type="number" value={state.ob0total} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
+              <td><input name="ob0total" className="nospinner" type="number" value={state.ob0total} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th>Tim OB1</th>
               <td>{prices.ob1}</td>
               <td>{this.vat.hours * 100}%</td>
               <td><input name="ob1amount" type="number" value={state.ob1amount} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /></td>
-              <td><input name="ob1total" type="number" value={state.ob1total} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
+              <td><input name="ob1total" className="nospinner" type="number" value={state.ob1total} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th>Tim OB2</th>
               <td>{prices.ob2}</td>
               <td>{this.vat.hours * 100}%</td>
               <td><input name="ob2amount" type="number" value={state.ob2amount} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /></td>
-              <td><input name="ob2total" type="number" value={state.ob2total} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
+              <td><input name="ob2total" className="nospinner" type="number" value={state.ob2total} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th>Tim OB3</th>
               <td>{prices.ob3}</td>
               <td>{this.vat.hours * 100}%</td>
               <td><input name="ob3amount" type="number" value={state.ob3amount} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /></td>
-              <td><input name="ob3total" type="number" value={state.ob3total} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
+              <td><input name="ob3total" className="nospinner" type="number" value={state.ob3total} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th colSpan="2">Framkörning</th>
               <td colSpan="2">{this.vat.approach * 100}%</td>
-              <td><input name="approach" type="number" value={state.approach} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
+              <td><input name="approach" className="nospinner" type="number" value={state.approach} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th colSpan="2">Städning</th>
               <td colSpan="2">{this.vat.cleaning * 100}%</td>
-              <td><input name="cleaning" type="number" value={state.cleaning} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
+              <td><input name="cleaning" className="nospinner" type="number" value={state.cleaning} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th colSpan="2">Traktamente</th>
               <td colSpan="2">{this.vat.allowance * 100}%</td>
-              <td><input name="allowance" type="number" value={state.allowance} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
+              <td><input name="allowance" className="nospinner" type="number" value={state.allowance} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th colSpan="2">Hotel</th>
               <td colSpan="2">{this.vat.hotel * 100}%</td>
-              <td><input name="hotel" type="number" value={state.hotel} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
+              <td><input name="hotel" className="nospinner" type="number" value={state.hotel} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th colSpan="2">Måltider</th>
               <td colSpan="2">{this.vat.food * 100}%</td>
-              <td><input name="food" type="number" value={state.food} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
+              <td><input name="food" className="nospinner" type="number" value={state.food} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th colSpan="2">Färjor</th>
               <td colSpan="2">{this.vat.ferry * 100}%</td>
-              <td><input name="ferry" type="number" value={state.ferry} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
+              <td><input name="ferry" className="nospinner" type="number" value={state.ferry} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th colSpan="2">Vägskatter</th>
               <td colSpan="2">{this.vat.tax * 100}%</td>
-              <td><input name="tax" type="number" value={state.tax} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
+              <td><input name="tax" className="nospinner" type="number" value={state.tax} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
             <tr>
               <th colSpan="4">Manuell rabatt (exkl moms)</th>
               <td><input name="discount" type="number" value={state.discount} onChange={this.handleInputChange} onFocus={this.clearZeroFieldValue} onBlur={this.setZeroOnClerField} /> kr</td>
             </tr>
-            {(state.baseDiscount !== 0) ? (<tr>
-              <th colSpan="4">Rabatt (liten grupp)</th>
+            {state.baseDiscount !== 0 ? (<tr>
+              <th colSpan="4">Rabatt (under 30 pers)</th>
               <td>{state.baseDiscount.toFixed(0)} kr</td>
             </tr>) : null}
             <tr>
@@ -472,6 +470,9 @@ class ResultViewer extends Component {
             </tr>
           </tbody>
         </table>
+        <div className="result-box-routes">
+          <LegList trips={props.trips} />
+        </div>
       </div>
     )
   }

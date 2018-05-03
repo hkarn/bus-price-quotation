@@ -261,6 +261,7 @@ handleChangeBreakEnd = event => {
         // Dispatch Action on response if from actionTrigger
         if (actionTrigger !== 'NONE' && status === 'OK') {
           props.addLeg(actionTrigger, Object.assign({}, newDrive))
+          this.setState(prevState => { prevState.other.start = newDrive.end.clone(); prevState.other.end = newDrive.end.clone(); return {other: prevState.other} })
         }
       }
     )
@@ -375,9 +376,11 @@ handleChangeBreakEnd = event => {
             <label htmlFor="timeIsNotPaid">Obetald tid</label>
           </p>
           <button
-            onClick={() =>
+            onClick={() => {
+              this.setState(prevState => { prevState.other.start = prevState.other.end.clone(); return {other: prevState.other} })
+              this.setState(prevState => { prevState.drive.start = prevState.other.end.clone(); return {drive: prevState.drive} })
               props.addLeg('BREAK', Object.assign({}, state.other))
-            }
+            }}
           >
             Lägg till tid i uppdraget <FontAwesomeIcon icon={faAngleRight} />
           </button>
