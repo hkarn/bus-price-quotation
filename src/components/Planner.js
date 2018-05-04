@@ -9,6 +9,7 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faAngleRight from '@fortawesome/fontawesome-free-solid/faAngleRight'
 import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
 import config from '../config/config.js'
+import {tryParseDateString} from '../functions/helpers'
 
 import {addLeg} from '../actions'
 
@@ -86,6 +87,7 @@ class Planner extends Component {
   }
 
 handleChangeBreakStart = event => {
+  event = tryParseDateString(event)
   if (moment(event, 'YYYY-MM-DD HH:mm', true).isValid()) {
     const {...state} = this.state
     let newOther = state.other
@@ -101,6 +103,7 @@ handleChangeBreakStart = event => {
 }
 
 handleChangeBreakEnd = event => {
+  event = tryParseDateString(event)
   if (moment(event, 'YYYY-MM-DD HH:mm', true).isValid()) {
     const {...state} = this.state
     let newOther = state.other
@@ -113,6 +116,7 @@ handleChangeBreakEnd = event => {
 }
 
   handleChangeStart = event => {
+    event = tryParseDateString(event)
     const valid = !!moment(event, 'YYYY-MM-DD HH:mm', true).isValid()
     if (valid) {
       const {...state} = this.state
@@ -135,6 +139,7 @@ handleChangeBreakEnd = event => {
   }
 
   handleChangeEnd = event => {
+    event = tryParseDateString(event)
     const valid = !!moment(event, 'YYYY-MM-DD HH:mm', true).isValid()
     if (valid) {
       const {...state} = this.state
