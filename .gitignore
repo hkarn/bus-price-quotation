@@ -57,3 +57,5 @@ src/config/firebase.js
 .vscode
 .firebaserc
 
+src/config/firebase-demo.js
+src/images/logo-demo.png
