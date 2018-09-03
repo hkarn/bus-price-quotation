@@ -15,15 +15,6 @@ class ResultViewer extends Component {
   constructor (props) {
     super(props)
 
-    this.baseValues = {
-      ob0: moment.duration(0),
-      ob1: moment.duration(0),
-      ob2: moment.duration(0),
-      ob3: moment.duration(0),
-      km: 0.00,
-      kmEmpty: 0.00
-    }
-
     this.vat = {km: 0.06, hours: 0.06, approach: 0.06, cleaning: 0.06, allowance: 0.25, hotel: 0.25, food: 0.12, ferry: 0.06, tax: 0.25}
 
     this.state = {
@@ -63,7 +54,7 @@ class ResultViewer extends Component {
     const prices = this.getPrices()
 
     if (props.trips !== nextProps.trips) {
-      this.baseValues = {
+      const base = {
         ob0: moment.duration(0),
         ob1: moment.duration(0),
         ob2: moment.duration(0),
@@ -72,32 +63,36 @@ class ResultViewer extends Component {
         kmEmpty: 0.00
       }
       nextProps.trips.forEach(trip => {
-        this.addHours(trip.start, trip.end)
-        if (trip.type === 'drive') {
-          if (trip.empty) {
-            this.baseValues.kmEmpty = parseFloat(this.baseValues.kmEmpty) + (parseFloat(trip.km.value) / 1000)
-          } else {
-            this.baseValues.km = parseFloat(this.baseValues.km) + (parseFloat(trip.km.value) / 1000)
+        if (trip.isPaid !== false) {
+          const thisBase = this.addHours(trip.start, trip.end)
+          base.ob0 = base.ob0.add(thisBase.ob0)
+          base.ob1 = base.ob1.add(thisBase.ob1)
+          base.ob2 = base.ob2.add(thisBase.ob2)
+          base.ob3 = base.ob3.add(thisBase.ob3)
+          if (trip.type === 'drive') {
+            if (trip.empty) {
+              base.kmEmpty = parseFloat(base.kmEmpty) + (parseFloat(trip.km.value) / 1000)
+            } else {
+              base.km = parseFloat(base.km) + (parseFloat(trip.km.value) / 1000)
+            }
           }
         }
-
-        const {...base} = this.baseValues
-
-        this.setState({
-          ob0amount: base.ob0.asHours().toFixed(2),
-          ob0total: (base.ob0.asHours().toFixed(2) * prices.ob0).toFixed(0),
-          ob1amount: base.ob1.asHours().toFixed(2),
-          ob1total: (base.ob1.asHours().toFixed(2) * prices.ob1).toFixed(0),
-          ob2amount: base.ob2.asHours().toFixed(2),
-          ob2total: (base.ob2.asHours().toFixed(2) * prices.ob2).toFixed(0),
-          ob3amount: base.ob3.asHours().toFixed(2),
-          ob3total: (base.ob3.asHours().toFixed(2) * prices.ob3).toFixed(0),
-          kmField: base.km.toFixed(1),
-          kmEmptyField: base.kmEmpty.toFixed(1),
-          kmTotal: (base.km * prices.km).toFixed(0),
-          kmEmptyTotal: (base.km * prices.kmEmpty).toFixed(0)
-        }, () => this.reCalculate())
       })
+      const newState = {
+        ob0amount: base.ob0.asHours().toFixed(2),
+        ob0total: (base.ob0.asHours().toFixed(2) * prices.ob0).toFixed(0),
+        ob1amount: base.ob1.asHours().toFixed(2),
+        ob1total: (base.ob1.asHours().toFixed(2) * prices.ob1).toFixed(0),
+        ob2amount: base.ob2.asHours().toFixed(2),
+        ob2total: (base.ob2.asHours().toFixed(2) * prices.ob2).toFixed(0),
+        ob3amount: base.ob3.asHours().toFixed(2),
+        ob3total: (base.ob3.asHours().toFixed(2) * prices.ob3).toFixed(0),
+        kmField: base.km.toFixed(1),
+        kmEmptyField: base.kmEmpty.toFixed(1),
+        kmTotal: (base.km * prices.km).toFixed(0),
+        kmEmptyTotal: (base.km * prices.kmEmpty).toFixed(0)
+      }
+      this.setState(newState, () => this.reCalculate())
     }
   }
 
@@ -125,87 +120,78 @@ class ResultViewer extends Component {
     return prices
   }
 
-  addHoursNextDay = (start, end, prices, ob = 'ob0') => {
-    const startTime = start
-    const endTime = end
-    const startDay = moment(start.format('Y-M-D ') + prices.ob0.start, 'Y-M-D ' + prices.ob0.format)
-    const endDay = moment(start.format('Y-M-D ') + prices.ob0.end, 'Y-M-D ' + prices.ob0.format)
-    if (start.isSame(end, 'day') && endTime.isBetween(startDay, endDay)) {
-      // Ends in same day before salary break
-      const duration = moment.duration(end.diff(start))
-      this.baseValues[ob] = this.baseValues[ob].clone().add(duration)
-    } else {
-      const duration = moment.duration(endDay.diff(startTime))
-      this.baseValues[ob] = this.baseValues[ob].clone().add(duration)
-      const newStart = moment(start.format('Y-M-D') + ' ' + prices.ob0.end, 'Y-M-D ' + prices.ob0.format)
-      this.addHours(newStart, end)
-    }
-  }
-
-  addHoursNextNight = (start, end, prices, ob = 'ob1') => {
-    const startTime = start
-    const endTime = end
-    const startNight = moment(start.format('Y-M-D ') + prices.ob1.start, 'Y-M-D ' + prices.ob1.format)
-    const endNight = moment(start.format('Y-M-D ') + prices.ob1.end, 'Y-M-D ' + prices.ob1.format).add(1, 'days')
-    if (start.isSame(end, 'day') || (start.clone().add(1, 'days').isSame(end, 'day') && endTime.isBetween(startNight, endNight))) {
-      // Ends in same night before salary break
-      const duration = moment.duration(end.diff(start))
-      this.baseValues[ob] = this.baseValues[ob].clone().add(duration)
-    } else {
-      const duration = moment.duration(endNight.diff(startTime))
-      this.baseValues[ob] = this.baseValues[ob].clone().add(duration)
-      const newStart = moment(start.clone().add(1, 'days').format('Y-M-D') + ' ' + prices.ob1.end, 'Y-M-D ' + prices.ob1.format)
-      this.addHours(newStart, end)
-    }
-  }
-
   addHours = (start, end) => {
     const {prices} = this.props
 
-    const startTime = moment(start.format(prices.ob0.format), prices.ob0.format)
-    const startDay = moment(prices.ob0.start, prices.ob0.format)
-    const endDay = moment(prices.ob0.end, prices.ob0.format)
-    if (startTime.isBetween(startDay, endDay, null, '[)')) {
-      // Is day
-      let ob = 'ob0'
-      if (checkIsHoliday(start) !== false) {
-        if (checkIsHoliday(start)[1] === 2) {
-          ob = 'ob3'
-        } else {
-          ob = 'ob2'
-        }
-      } else if (start.isoWeekday() > 5) {
-        // Is weekend
-        ob = 'ob2'
-      } else {
-        // Is workday
-        ob = 'ob0'
-      }
-      this.addHoursNextDay(start, end, prices, ob)
-    } else {
-      // Is night
-      let ob = 'ob1'
-      const startAfter = start.clone().add(1, 'days')
-      // if (!startTime.isBetween(moment(startTime.format('Y-M-D ') + '00:00', 'Y-M-D HH:mm'), moment(startTime.format('Y-M-D ') + prices.ob1.end, 'Y-M-D HH:mm'), null, '[]')) {
-      // is before midnigt
-      //  console.log('is before midnigt')
-      //  startCompare.add(1, 'days')
-      // }
+    const rawResult = [
+      moment.duration(0),
+      moment.duration(0),
+      moment.duration(0),
+      moment.duration(0)
+    ]
 
-      if ((checkIsHoliday(start) !== false) || (checkIsHoliday(startAfter) !== false)) {
-        if ((checkIsHoliday(start)[1] === 2) || (checkIsHoliday(startAfter)[1] === 2)) {
-          ob = 'ob3'
-        } else {
-          ob = 'ob2'
-        }
-      } else if ((start.isoWeekday() > 5) || (startAfter.isoWeekday() > 5)) {
-        // Is weekend
-        ob = 'ob2'
-      } else {
-        // Is worknight
-        ob = 'ob1'
+    if (!start.isValid() || !end.isValid()) {
+      // All trips are validated on adding so this shouldn't happen unless the user messes around with the devtools, but we can return impossible numbers rather then crashing just in case.
+      return {
+        ob0: moment.duration(10, 'years'),
+        ob1: moment.duration(10, 'years'),
+        ob2: moment.duration(10, 'years'),
+        ob3: moment.duration(10, 'years')
       }
-      this.addHoursNextNight(start, end, prices, ob)
+    }
+
+    // Format breakpoints as date independent times
+    const breakpointOB0 = moment(prices.ob0.start, prices.ob0.format)
+    const breakpointOB1 = moment(prices.ob0.end, prices.ob0.format)
+
+    // Inner recurisve check function
+    function addNextPeriod (start, end) {
+      // Helper functions for inner scope
+      function getPastDaysToCheck (start) {
+        const result = [start.clone()]
+        const weekday = start.isoWeekday()
+        for (let i = 1; (weekday - i) > 5; i++) {
+          result.push(start, start.clone().subtract(i, 'days'))
+        }
+        return result
+      }
+
+      // Check start conditions
+      const startTime = moment(start.format(prices.ob0.format), prices.ob0.format) // Format startTime as date indipendent time
+      let currentOB = startTime.isBetween(breakpointOB0, breakpointOB1, null, '[)') ? 0 : 1 // sets 0 for day, 1 for night
+      const startDate = currentOB === 1 && startTime.hours() >= breakpointOB1.hours() ? start.clone().add(1, 'days') : start.clone() // If night but before midnight use date from day after
+      const nextBreakpoint = currentOB === 0
+        ? moment(start.format('YYYY-MM-DD') + ' ' + breakpointOB1.format('HH:mm'), 'YYYY-MM-DD HH:mm')
+        : moment(startDate.clone().format('YYYY-MM-DD') + ' ' + breakpointOB0.format('HH:mm'), 'YYYY-MM-DD HH:mm') // If day set same evening, if night set next morning
+      currentOB = startDate.isoWeekday() > 5 ? 2 : currentOB // sets 2 if weekend
+      const pastDaysToCheck = currentOB === 2 ? getPastDaysToCheck(startDate) : [startDate.clone()] // All saturdays and sundays follwoing a holiday are holidays too, get array to check.
+      pastDaysToCheck.forEach(day => { // Loop is unnecesary on subsequent recursion but not that heavy so leave for now
+        const isHoliday = checkIsHoliday(day) // Returnes false or at index 1: 1 for OB2, and 2 for OB3
+        if (isHoliday !== false) { // If false change nothing
+          if (isHoliday[1] + 1 > currentOB) {
+            currentOB = isHoliday[1] + 1 // Sets the highest value we find from affected dates
+          }
+        }
+      })
+
+      // Check break condtion and add time
+      const breakCondition = end.isBefore(nextBreakpoint)
+      const duration = end.isBefore(nextBreakpoint) ? moment.duration(end.diff(start)) : moment.duration(nextBreakpoint.diff(start))
+      rawResult[currentOB].add(duration)
+      if (!breakCondition) {
+        addNextPeriod(nextBreakpoint, end)
+      }
+    }
+
+    // Call first recursion walking thru the passed timespan
+    addNextPeriod(start, end)
+
+    // Return result
+    return {
+      ob0: rawResult[0].clone(),
+      ob1: rawResult[1].clone(),
+      ob2: rawResult[2].clone(),
+      ob3: rawResult[3].clone()
     }
   }
 
