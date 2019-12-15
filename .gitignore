@@ -59,3 +59,4 @@ src/config/firebase.js
 
 src/config/firebase-demo.js
 src/images/logo-demo.png
+public/.htaccess
